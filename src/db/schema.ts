@@ -12,11 +12,6 @@ import { relations } from 'drizzle-orm'
 
 // ---------- Enums ----------
 
-export const clothProvidedByEnum = pgEnum('cloth_provided_by', [
-  'Customer',
-  'Tailor',
-])
-
 export const orderStatusEnum = pgEnum('order_status', [
   'Pending',
   'Stitching',
@@ -57,8 +52,7 @@ export const orders = pgTable('orders', {
     .references(() => customers.id, { onDelete: 'cascade' }),
   userId: uuid('user_id')
     .references(() => users.id, { onDelete: 'set null' }),
-  items: jsonb('items').$type<{ name: string }[]>().notNull().default([]),
-  clothProvidedBy: clothProvidedByEnum('cloth_provided_by').notNull().default('Customer'),
+  items: jsonb('items').$type<{ name: string; clothProvidedBy: 'Customer' | 'Tailor' }[]>().notNull().default([]),
   orderDate: date('order_date').notNull(),
   totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull(),
   advancePaid: numeric('advance_paid', { precision: 10, scale: 2 }).notNull().default('0'),
@@ -100,4 +94,4 @@ export type Order = typeof orders.$inferSelect
 export type NewOrder = typeof orders.$inferInsert
 
 export type OrderStatus = Order['status']
-export type ClothProvidedBy = Order['clothProvidedBy']
+export type ClothProvidedBy = 'Customer' | 'Tailor'

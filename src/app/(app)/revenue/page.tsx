@@ -1,16 +1,17 @@
 import { Suspense } from 'react'
-import { and, gte, sum, count, desc, eq } from 'drizzle-orm'
+import { and, gte, lt, sum, count, desc, eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { orders, customers } from '@/db/schema'
 import FilterSelect from '@/components/ui/FilterSelect'
-import { getDateFrom, PERIOD_LABELS } from '../orders/constants'
+import { getDateFrom, getDateTo, PERIOD_LABELS } from '../orders/constants'
 
 const PERIOD_OPTIONS = [
-  { value: 'week',  label: 'Last Week'  },
-  { value: 'month', label: 'Last Month' },
-  { value: '3m',    label: 'Last 3 Months' },
-  { value: '6m',    label: 'Last 6 Months' },
-  { value: 'year',  label: 'Last Year'  },
+  { value: 'current', label: 'Current Month' },
+  { value: 'month',   label: 'Last Month' },
+  { value: 'week',    label: 'Last Week'  },
+  { value: '3m',      label: 'Last 3 Months' },
+  { value: '6m',      label: 'Last 6 Months' },
+  { value: 'year',    label: 'Last Year'  },
 ]
 
 interface Props {
@@ -19,10 +20,14 @@ interface Props {
 
 export default async function RevenuePage({ searchParams }: Props) {
   const { period } = await searchParams
-  const activePeriod = period && PERIOD_LABELS[period] ? period : 'month'
+  const activePeriod = period && PERIOD_LABELS[period] ? period : 'current'
   const dateFrom     = getDateFrom(activePeriod)!
+  const dateTo       = getDateTo(activePeriod)
 
-  const where = and(gte(orders.orderDate, dateFrom))
+  const where = and(
+    gte(orders.orderDate, dateFrom),
+    dateTo ? lt(orders.orderDate, dateTo) : undefined,
+  )
 
   const [stats, topCustomers] = await Promise.all([
     db.select({
@@ -71,7 +76,7 @@ export default async function RevenuePage({ searchParams }: Props) {
       {/* Period selector */}
       <Suspense>
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4" style={{ scrollbarWidth: 'none' }}>
-          <FilterSelect param="period" options={PERIOD_OPTIONS} defaultLabel="Last Month" />
+          <FilterSelect param="period" options={PERIOD_OPTIONS} defaultLabel="Current Month" />
         </div>
       </Suspense>
 

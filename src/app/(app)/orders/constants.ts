@@ -11,11 +11,12 @@ export const PERIOD_DAYS: Record<string, number> = {
 }
 
 export const PERIOD_LABELS: Record<string, string> = {
-  week:  'Last Week',
-  month: 'Last Month',
-  '3m':  'Last 3 Months',
-  '6m':  'Last 6 Months',
-  year:  'Last Year',
+  current: 'Current Month',
+  week:    'Last Week',
+  month:   'Last Month',
+  '3m':    'Last 3 Months',
+  '6m':    'Last 6 Months',
+  year:    'Last Year',
 }
 
 export type SortOption = 'high' | 'low'
@@ -24,12 +25,33 @@ export interface OrderFilters {
   status:     OrderStatus | null
   sort:       SortOption  | null
   dateFrom:   string      | null
+  dateTo:     string      | null
   customerId: string      | null
 }
 
 export function getDateFrom(period: string | null): string | null {
-  if (!period || !PERIOD_DAYS[period]) return null
+  if (!period) return null
+  if (period === 'current') {
+    const d = new Date()
+    d.setDate(1)
+    return d.toISOString().split('T')[0]
+  }
+  if (period === 'month') {
+    const d = new Date()
+    d.setDate(1)
+    d.setMonth(d.getMonth() - 1)
+    return d.toISOString().split('T')[0]
+  }
+  if (!PERIOD_DAYS[period]) return null
   const d = new Date()
   d.setDate(d.getDate() - PERIOD_DAYS[period])
+  return d.toISOString().split('T')[0]
+}
+
+// Returns an exclusive upper bound for calendar-month filtering; null for rolling windows.
+export function getDateTo(period: string | null): string | null {
+  if (period !== 'month') return null
+  const d = new Date()
+  d.setDate(1)
   return d.toISOString().split('T')[0]
 }

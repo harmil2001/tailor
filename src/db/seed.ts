@@ -4,10 +4,15 @@ config({ path: '.env.local' })
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { users, customers, orders } from './schema'
+import type { ClothProvidedBy } from './schema'
 import bcrypt from 'bcryptjs'
 
 const sql = neon(process.env.DATABASE_URL!)
 const db = drizzle(sql)
+
+function items(names: string[], cloth: ClothProvidedBy) {
+  return names.map(name => ({ name, clothProvidedBy: cloth }))
+}
 
 async function seed() {
   // ── Admin user ──────────────────────────────────────────────────────────────
@@ -82,8 +87,7 @@ async function seed() {
     // Ramniwas Sharma — 3 orders
     {
       customerId: byName['Ramniwas Sharma'],
-      items: [{ name: 'Sherwani' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Sherwani'], 'Customer'),
       orderDate: '2025-04-10',
       totalAmount: '4500.00',
       advancePaid: '2000.00',
@@ -92,8 +96,7 @@ async function seed() {
     },
     {
       customerId: byName['Ramniwas Sharma'],
-      items: [{ name: 'Kurta Pyjama' }],
-      clothProvidedBy: 'Tailor',
+      items: items(['Kurta Pyjama'], 'Tailor'),
       orderDate: '2025-05-01',
       totalAmount: '1800.00',
       advancePaid: '900.00',
@@ -101,8 +104,7 @@ async function seed() {
     },
     {
       customerId: byName['Ramniwas Sharma'],
-      items: [{ name: 'Bandhgala Suit' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Bandhgala Suit'], 'Customer'),
       orderDate: '2025-05-20',
       totalAmount: '5200.00',
       advancePaid: '2500.00',
@@ -113,8 +115,7 @@ async function seed() {
     // Govind Lal Soni — 2 orders
     {
       customerId: byName['Govind Lal Soni'],
-      items: [{ name: 'Kurta Pyjama Set' }],
-      clothProvidedBy: 'Tailor',
+      items: items(['Kurta Pyjama Set'], 'Tailor'),
       orderDate: '2025-04-15',
       totalAmount: '1600.00',
       advancePaid: '800.00',
@@ -122,8 +123,7 @@ async function seed() {
     },
     {
       customerId: byName['Govind Lal Soni'],
-      items: [{ name: 'Waistcoat' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Waistcoat'], 'Customer'),
       orderDate: '2025-05-18',
       totalAmount: '1200.00',
       advancePaid: '600.00',
@@ -133,8 +133,7 @@ async function seed() {
     // Hanuman Prasad Vyas — 2 orders
     {
       customerId: byName['Hanuman Prasad Vyas'],
-      items: [{ name: 'Achkan' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Achkan'], 'Customer'),
       orderDate: '2025-03-20',
       totalAmount: '3800.00',
       advancePaid: '2000.00',
@@ -143,8 +142,7 @@ async function seed() {
     },
     {
       customerId: byName['Hanuman Prasad Vyas'],
-      items: [{ name: 'Formal Trousers (2 pairs)' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Formal Trousers (2 pairs)'], 'Customer'),
       orderDate: '2025-05-22',
       totalAmount: '1400.00',
       advancePaid: '700.00',
@@ -154,8 +152,7 @@ async function seed() {
     // Surendra Singh Rathore — 2 orders
     {
       customerId: byName['Surendra Singh Rathore'],
-      items: [{ name: 'Jodhpuri Suit' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Jodhpuri Suit'], 'Customer'),
       orderDate: '2025-04-28',
       totalAmount: '6500.00',
       advancePaid: '3000.00',
@@ -164,20 +161,17 @@ async function seed() {
     },
     {
       customerId: byName['Surendra Singh Rathore'],
-      items: [{ name: 'Kurta' }],
-      clothProvidedBy: 'Tailor',
+      items: items(['Kurta'], 'Tailor'),
       orderDate: '2025-05-25',
       totalAmount: '900.00',
       advancePaid: '500.00',
       status: 'Stitching',
     },
 
-
     // Deepak Kumawat — 2 orders
     {
       customerId: byName['Deepak Kumawat'],
-      items: [{ name: 'Shirt (3 pieces)' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Shirt (3 pieces)'], 'Customer'),
       orderDate: '2025-05-10',
       totalAmount: '2100.00',
       advancePaid: '1000.00',
@@ -185,8 +179,7 @@ async function seed() {
     },
     {
       customerId: byName['Deepak Kumawat'],
-      items: [{ name: 'Formal Trouser' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Formal Trouser'], 'Customer'),
       orderDate: '2025-05-25',
       totalAmount: '700.00',
       advancePaid: '400.00',
@@ -196,8 +189,7 @@ async function seed() {
     // Madan Mohan Pareek — 1 order
     {
       customerId: byName['Madan Mohan Pareek'],
-      items: [{ name: 'Sherwani' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Sherwani'], 'Customer'),
       orderDate: '2025-05-15',
       totalAmount: '5500.00',
       advancePaid: '2500.00',
@@ -205,12 +197,10 @@ async function seed() {
       notes: 'Son\'s wedding — maroon brocade, gold thread work',
     },
 
-
     // Vijay Shankar Bohra — 2 orders
     {
       customerId: byName['Vijay Shankar Bohra'],
-      items: [{ name: 'Kurta Pyjama' }],
-      clothProvidedBy: 'Tailor',
+      items: items(['Kurta Pyjama'], 'Tailor'),
       orderDate: '2025-05-08',
       totalAmount: '1700.00',
       advancePaid: '850.00',
@@ -218,8 +208,7 @@ async function seed() {
     },
     {
       customerId: byName['Vijay Shankar Bohra'],
-      items: [{ name: 'Nehru Jacket' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Nehru Jacket'], 'Customer'),
       orderDate: '2025-05-26',
       totalAmount: '2800.00',
       advancePaid: '1500.00',
@@ -230,8 +219,7 @@ async function seed() {
     // Rajendra Prasad Gupta — 2 orders
     {
       customerId: byName['Rajendra Prasad Gupta'],
-      items: [{ name: 'Bandhgala + Trouser' }],
-      clothProvidedBy: 'Customer',
+      items: items(['Bandhgala + Trouser'], 'Customer'),
       orderDate: '2025-04-25',
       totalAmount: '4200.00',
       advancePaid: '2000.00',
@@ -239,8 +227,7 @@ async function seed() {
     },
     {
       customerId: byName['Rajendra Prasad Gupta'],
-      items: [{ name: 'Kurta (2 pieces)' }],
-      clothProvidedBy: 'Tailor',
+      items: items(['Kurta (2 pieces)'], 'Tailor'),
       orderDate: '2025-05-20',
       totalAmount: '2400.00',
       advancePaid: '1200.00',

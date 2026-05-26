@@ -1,4 +1,4 @@
-import { and, eq, gte, desc } from 'drizzle-orm'
+import { and, eq, gte, lt, desc } from 'drizzle-orm'
 import { FileText } from 'lucide-react'
 import { db } from '@/db'
 import { orders, customers } from '@/db/schema'
@@ -6,7 +6,7 @@ import type { OrderStatus } from '@/db/schema'
 import FilterRow from './_components/FilterRow'
 import OrderList from './_components/OrderList'
 import CreateOrderSheet from '@/components/orders/CreateOrderSheet'
-import { PAGE_SIZE, getDateFrom } from './constants'
+import { PAGE_SIZE, getDateFrom, getDateTo } from './constants'
 import type { OrderFilters } from './constants'
 
 const VALID_STATUSES: OrderStatus[] = ['Pending', 'Stitching', 'Ready', 'Delivered', 'Cancelled']
@@ -20,19 +20,22 @@ export default async function OrdersPage({ searchParams }: Props) {
 
   const activeStatus     = VALID_STATUSES.find(s => s === status) ?? null
   const dateFrom         = getDateFrom(period ?? null)
+  const dateTo           = getDateTo(period ?? null)
   const activeCustomerId = customer ?? null
 
   const filters: OrderFilters = {
     status:     activeStatus,
     sort:       null,
     dateFrom,
+    dateTo,
     customerId: activeCustomerId,
   }
 
   const where = and(
-    activeStatus     ? eq(orders.status, activeStatus)               : undefined,
-    dateFrom         ? gte(orders.orderDate, dateFrom)               : undefined,
-    activeCustomerId ? eq(orders.customerId, activeCustomerId)       : undefined,
+    activeStatus     ? eq(orders.status, activeStatus)         : undefined,
+    dateFrom         ? gte(orders.orderDate, dateFrom)         : undefined,
+    dateTo           ? lt(orders.orderDate, dateTo)            : undefined,
+    activeCustomerId ? eq(orders.customerId, activeCustomerId) : undefined,
   )
 
   const [initialOrders, total, allCustomers] = await Promise.all([

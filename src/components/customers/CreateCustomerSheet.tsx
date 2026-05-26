@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { UserPlus, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { UserPlus, X, Loader2, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react'
 import { createCustomer } from '@/app/(app)/customers/actions'
 
 const MEASUREMENT_KEYS = ['chest', 'waist', 'shoulder', 'shirtLength', 'trouser', 'inseam']
@@ -17,7 +17,7 @@ type Feedback = { type: 'success' | 'error'; message: string }
 const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
 const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
 
-export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 'button' | 'fab' | 'inline' }) {
+export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 'button' | 'fab' | 'inline' | 'card' }) {
   const router = useRouter()
   const [mounted, setMounted]   = useState(false)
   const [open, setOpen]         = useState(false)
@@ -66,6 +66,19 @@ export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 
       ) : variant === 'inline' ? (
         <button onClick={handleOpen} className="h-12 px-6 bg-black text-white rounded-xl text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-transform">
           <UserPlus size={16} /> Add Customer
+        </button>
+      ) : variant === 'card' ? (
+        <button onClick={handleOpen} className="w-full bg-[#f5f0e8] rounded-[20px] p-5 flex flex-col justify-between h-36 active:scale-[0.97] transition-transform text-left">
+          <div className="w-10 h-10 rounded-xl bg-[#c9a84c]/25 flex items-center justify-center">
+            <UserPlus size={20} className="text-[#8a6a1f]" />
+          </div>
+          <div>
+            <p className="text-[17px] font-bold text-[#0b1c30]" style={{ fontFamily: 'Manrope' }}>New Customer</p>
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-[12px] text-[#76777d]">Add to your shop</p>
+              <ArrowRight size={16} className="text-[#8a6a1f]" />
+            </div>
+          </div>
         </button>
       ) : (
         <button onClick={handleOpen} className="w-full h-14 flex items-center justify-center gap-2 bg-white border-2 border-[#775a19] text-[#775a19] rounded-xl text-[16px] font-semibold active:scale-95 transition-transform">

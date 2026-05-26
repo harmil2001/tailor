@@ -1,11 +1,13 @@
 'use server'
 
-import { and, eq, gte, desc, asc } from 'drizzle-orm'
+import { and, eq, gte, lt, desc, asc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { db } from '@/db'
 import { orders } from '@/db/schema'
 import type { ClothProvidedBy } from '@/db/schema'
+
+type OrderItem = { name: string; clothProvidedBy: ClothProvidedBy }
 
 import { PAGE_SIZE } from './constants'
 import type { OrderFilters } from './constants'
@@ -13,8 +15,7 @@ import type { OrderFilters } from './constants'
 export async function updateOrder(
   id: string,
   data: {
-    items: { name: string }[]
-    clothProvidedBy: ClothProvidedBy
+    items: OrderItem[]
     orderDate: string
     totalAmount: string
     advancePaid: string
@@ -32,13 +33,12 @@ export async function updateOrder(
     await db
       .update(orders)
       .set({
-        items:           data.items.filter(i => i.name.trim()).map(i => ({ name: i.name.trim() })),
-        clothProvidedBy: data.clothProvidedBy,
-        orderDate:       data.orderDate,
-        totalAmount:     data.totalAmount || '0',
-        advancePaid:     data.advancePaid || '0',
-        status:          data.status,
-        notes:           data.notes ?? null,
+        items:       data.items.filter(i => i.name.trim()).map(i => ({ name: i.name.trim(), clothProvidedBy: i.clothProvidedBy })),
+        orderDate:   data.orderDate,
+        totalAmount: data.totalAmount || '0',
+        advancePaid: data.advancePaid || '0',
+        status:      data.status,
+        notes:       data.notes ?? null,
       })
       .where(eq(orders.id, id))
 
@@ -53,8 +53,7 @@ export async function updateOrder(
 
 export async function createOrder(data: {
   customerId: string
-  items: { name: string }[]
-  clothProvidedBy: ClothProvidedBy
+  items: OrderItem[]
   orderDate: string
   totalAmount: string
   advancePaid: string
@@ -74,15 +73,14 @@ export async function createOrder(data: {
     const [row] = await db
       .insert(orders)
       .values({
-        customerId:      data.customerId,
+        customerId:  data.customerId,
         userId,
-        items:           data.items.filter(i => i.name.trim()).map(i => ({ name: i.name.trim() })),
-        clothProvidedBy: data.clothProvidedBy,
-        orderDate:       data.orderDate,
-        totalAmount:     data.totalAmount,
-        advancePaid:     data.advancePaid || '0',
-        notes:           data.notes ?? null,
-        status:          'Pending',
+        items:       data.items.filter(i => i.name.trim()).map(i => ({ name: i.name.trim(), clothProvidedBy: i.clothProvidedBy })),
+        orderDate:   data.orderDate,
+        totalAmount: data.totalAmount,
+        advancePaid: data.advancePaid || '0',
+        notes:       data.notes ?? null,
+        status:      'Pending',
       })
       .returning({ id: orders.id })
 
@@ -95,11 +93,24 @@ export async function createOrder(data: {
   }
 }
 
+export async function deleteOrder(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await db.delete(orders).where(eq(orders.id, id))
+    revalidatePath('/orders')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err) {
+    console.error('[deleteOrder]', err)
+    return { success: false, error: 'Failed to delete order. Please try again.' }
+  }
+}
+
 export async function fetchOrdersPage(filters: OrderFilters, offset: number) {
   const where = and(
-    filters.status     ? eq(orders.status, filters.status)           : undefined,
-    filters.dateFrom   ? gte(orders.orderDate, filters.dateFrom)     : undefined,
-    filters.customerId ? eq(orders.customerId, filters.customerId)   : undefined,
+    filters.status     ? eq(orders.status, filters.status)         : undefined,
+    filters.dateFrom   ? gte(orders.orderDate, filters.dateFrom)   : undefined,
+    filters.dateTo     ? lt(orders.orderDate, filters.dateTo)      : undefined,
+    filters.customerId ? eq(orders.customerId, filters.customerId) : undefined,
   )
 
   const orderBy = filters.sort === 'high' ? [desc(orders.totalAmount)]

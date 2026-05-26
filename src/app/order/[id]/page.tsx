@@ -51,83 +51,102 @@ export default async function PublicOrderPage({ params }: Props) {
   })
 
   return (
-    <div className="min-h-dvh bg-[#f8f9ff] flex flex-col items-center px-4">
+    <>
+      <style>{`
+        @media print {
+          @page { margin: 16mm; }
+          body { background: white !important; }
+          .print-card {
+            box-shadow: none !important;
+            border: 1px solid #e0e0e0 !important;
+            break-inside: avoid;
+          }
+        }
+      `}</style>
 
-      {/* Fixed top bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#f8f9ff]/90 backdrop-blur-md border-b border-[#c6c6cd]/40 px-4 h-14 flex items-center">
-        <div className="w-full max-w-sm mx-auto">
-          <BackButton />
-        </div>
-      </div>
+      <div className="min-h-dvh bg-[#f8f9ff] print:bg-white flex flex-col items-center px-4">
 
-      <div className="w-full max-w-sm flex flex-col gap-6 pt-20 pb-8">
-
-        {/* Shop header */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center">
-            <TieLogo size={32} />
-          </div>
-          <div>
-            <p className="text-[18px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
-              My Brothers
-            </p>
-            <p className="text-[12px] text-[#45464d]">Clothing & Tailoring</p>
+        {/* Fixed top bar — hidden on print */}
+        <div className="print:hidden fixed top-0 left-0 right-0 z-50 bg-[#f8f9ff]/90 backdrop-blur-md border-b border-[#c6c6cd]/40 px-4 h-14 flex items-center">
+          <div className="w-full max-w-sm mx-auto">
+            <BackButton />
           </div>
         </div>
 
-        {/* Status badge */}
-        <div className="flex justify-center">
-          <span className={`px-5 py-2 rounded-full text-[13px] font-bold tracking-wide ${style.pill}`}>
-            {style.label}
-          </span>
-        </div>
+        <div className="w-full max-w-sm flex flex-col gap-6 pt-20 print:pt-0 pb-8">
 
-        {/* Order summary card */}
-        <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 flex flex-col gap-1">
-          <p className="text-[20px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
-            {order.customer.name}
-          </p>
-          <p className="text-[15px] text-[#45464d]">{order.items.map(i => i.name).join(', ')}</p>
-          <p className="text-[12px] text-[#76777d] mt-1">Ordered on {orderDate}</p>
-        </div>
+          {/* Shop header */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center">
+              <TieLogo size={32} />
+            </div>
+            <div>
+              <p className="text-[18px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+                My Brothers
+              </p>
+              <p className="text-[12px] text-[#45464d]">Clothing & Tailoring</p>
+            </div>
+          </div>
 
-        {/* Timeline */}
-        <OrderTimeline status={order.status} />
-
-        {/* Financial breakdown */}
-        <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-1">
-          <Row label="Total Amount"  value={`₹${total.toLocaleString('en-IN')}`} />
-          <Row label="Advance Paid"  value={`₹${advance.toLocaleString('en-IN')}`} />
-          <Row
-            label="Balance Due"
-            value={isPaid ? 'Paid ✓' : `₹${balance.toLocaleString('en-IN')}`}
-            accent={!isPaid}
-          />
-        </div>
-
-        {/* Extra details */}
-        <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-4 flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Cloth</span>
-            <span className="text-[14px] text-[#0b1c30]">
-              {order.clothProvidedBy === 'Customer' ? 'Provided by customer' : 'Provided by shop'}
+          {/* Status badge */}
+          <div className="flex justify-center">
+            <span className={`px-5 py-2 rounded-full text-[13px] font-bold tracking-wide ${style.pill}`}>
+              {style.label}
             </span>
           </div>
-          {order.notes && (
+
+          {/* Order summary card */}
+          <div className="print-card bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 flex flex-col gap-1">
+            <p className="text-[20px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+              {order.customer.name}
+            </p>
+            <p className="text-[15px] text-[#45464d]">{order.items.map(i => i.name).join(', ')}</p>
+            <p className="text-[12px] text-[#76777d] mt-1">Ordered on {orderDate}</p>
+          </div>
+
+          {/* Timeline */}
+          <OrderTimeline status={order.status} />
+
+          {/* Financial breakdown */}
+          <div className="print-card bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-1">
+            <Row label="Total Amount"  value={`₹${total.toLocaleString('en-IN')}`} />
+            <Row label="Advance Paid"  value={`₹${advance.toLocaleString('en-IN')}`} />
+            <Row
+              label="Balance Due"
+              value={isPaid ? 'Paid ✓' : `₹${balance.toLocaleString('en-IN')}`}
+              accent={!isPaid}
+            />
+          </div>
+
+          {/* Extra details */}
+          <div className="print-card bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-4 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Notes</span>
-              <span className="text-[14px] text-[#0b1c30] leading-relaxed">{order.notes}</span>
+              <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Cloth</span>
+              {order.items.map((item, i) => (
+                <span key={i} className="text-[14px] text-[#0b1c30]">
+                  {item.name} — {item.clothProvidedBy === 'Customer' ? 'provided by customer' : 'provided by shop'}
+                </span>
+              ))}
             </div>
-          )}
+            {order.notes && (
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Notes</span>
+                <span className="text-[14px] text-[#0b1c30] leading-relaxed">{order.notes}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Copy order ID — hidden on print */}
+          <div className="print:hidden">
+            <CopyOrderId id={order.id} />
+          </div>
+
+          <p className="text-center text-[11px] text-[#76777d]">
+            My Brothers · Clothing & Tailoring
+          </p>
+
         </div>
-
-        <CopyOrderId id={order.id} />
-
-        <p className="text-center text-[11px] text-[#76777d]">
-          My Brothers · Clothing & Tailoring
-        </p>
-
       </div>
-    </div>
+    </>
   )
 }

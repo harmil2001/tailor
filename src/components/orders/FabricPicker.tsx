@@ -6,6 +6,7 @@ import type { Fabric } from '@/db/schema'
 
 export type FabricSelection = {
   fabricId: string
+  code: string
   brand: string
   color: string
   availableMeters: number
@@ -25,7 +26,7 @@ export default function FabricPicker({ fabrics, value, onChange }: {
   const [query, setQuery] = useState('')
 
   function select(f: Fabric) {
-    onChange({ fabricId: f.id, brand: f.brand, color: f.color, availableMeters: parseFloat(f.availableMeters), metersUsed: '', pricePerMeter: sellPrice(f) })
+    onChange({ fabricId: f.id, code: f.code, brand: f.brand, color: f.color, availableMeters: parseFloat(f.availableMeters), metersUsed: '', pricePerMeter: sellPrice(f) })
     setQuery('')
   }
 
@@ -41,7 +42,12 @@ export default function FabricPicker({ fabrics, value, onChange }: {
       <div className="mt-1 p-3 bg-white border border-[#c6c6cd] rounded-xl flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-[13px] font-semibold text-[#0b1c30]">{value.brand} · {value.color}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-[13px] font-semibold text-[#0b1c30]">{value.brand} · {value.color}</p>
+              <span className="text-[11px] font-mono font-bold text-[#45464d] bg-[#f0f0f5] px-2 py-0.5 rounded-full tracking-widest border border-black/10">
+                {value.code}
+              </span>
+            </div>
             <p className="text-[11px] text-[#76777d] mt-0.5">
               {value.availableMeters.toFixed(1)}m available · ₹{value.pricePerMeter.toFixed(0)}/m
             </p>

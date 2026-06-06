@@ -7,7 +7,9 @@ import type { ClothProvidedBy, Fabric } from '@/db/schema'
 export type OrderItemState = {
   name: string
   clothProvidedBy: ClothProvidedBy
+  fabricType: 'lot' | 'loose' | null
   fabricSelection: FabricSelection | null
+  loosePieceNote: string
 }
 
 export default function OrderItemRow({ item, showRemove, fabrics, onChange, onRemove }: {
@@ -18,7 +20,11 @@ export default function OrderItemRow({ item, showRemove, fabrics, onChange, onRe
   onRemove: () => void
 }) {
   function setCloth(opt: ClothProvidedBy) {
-    onChange({ ...item, clothProvidedBy: opt, fabricSelection: opt === 'Customer' ? null : item.fabricSelection })
+    onChange({ ...item, clothProvidedBy: opt, fabricType: null, fabricSelection: null })
+  }
+
+  function setFabricType(type: 'lot' | 'loose') {
+    onChange({ ...item, fabricType: type, fabricSelection: null })
   }
 
   return (
@@ -38,6 +44,7 @@ export default function OrderItemRow({ item, showRemove, fabrics, onChange, onRe
         )}
       </div>
 
+      {/* Cloth provider */}
       <div className="flex items-center gap-2">
         <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Cloth</span>
         <div className="flex gap-1.5">
@@ -51,11 +58,42 @@ export default function OrderItemRow({ item, showRemove, fabrics, onChange, onRe
         </div>
       </div>
 
+      {/* Fabric type — only when tailor provides */}
       {item.clothProvidedBy === 'Tailor' && (
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Type</span>
+          <div className="flex gap-1.5">
+            <button onClick={() => setFabricType('lot')}
+              className={`px-3 h-7 rounded-lg text-[11px] font-semibold transition-colors ${item.fabricType === 'lot' ? 'bg-black text-white' : 'bg-white border border-[#c6c6cd] text-[#45464d]'}`}
+            >
+              From Lot
+            </button>
+            <button onClick={() => setFabricType('loose')}
+              className={`px-3 h-7 rounded-lg text-[11px] font-semibold transition-colors ${item.fabricType === 'loose' ? 'bg-black text-white' : 'bg-white border border-[#c6c6cd] text-[#45464d]'}`}
+            >
+              Loose Piece
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Lot picker */}
+      {item.clothProvidedBy === 'Tailor' && item.fabricType === 'lot' && (
         <FabricPicker
           fabrics={fabrics}
           value={item.fabricSelection}
           onChange={sel => onChange({ ...item, fabricSelection: sel })}
+        />
+      )}
+
+      {/* Loose piece — free text description */}
+      {item.clothProvidedBy === 'Tailor' && item.fabricType === 'loose' && (
+        <input
+          type="text"
+          value={item.loosePieceNote}
+          onChange={e => onChange({ ...item, loosePieceNote: e.target.value })}
+          placeholder="Describe fabric — e.g. Navy Blue Plain Cotton"
+          className="w-full h-10 px-3 bg-white border border-[#c6c6cd] rounded-lg text-[13px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors"
         />
       )}
     </div>

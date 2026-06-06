@@ -30,7 +30,7 @@ export default function CreateOrderSheet({
   const [searchQuery, setSearchQuery]  = useState('')
   const [showDropdown, setShowDropdown]= useState(false)
   const [noMatchToast, setNoMatch]     = useState(false)
-  const [items, setItems]              = useState<OrderItemState[]>([{ name: '', clothProvidedBy: 'Customer', fabricSelection: null }])
+  const [items, setItems]              = useState<OrderItemState[]>([{ name: '', clothProvidedBy: 'Customer', fabricType: null, fabricSelection: null, loosePieceNote: '' }])
   const [orderDate, setOrderDate]      = useState(today())
   const [total, setTotal]              = useState('')
   const [advance, setAdvance]          = useState('0')
@@ -56,7 +56,7 @@ export default function CreateOrderSheet({
 
   function handleOpen() {
     setSelected(null); setSearchQuery(''); setShowDropdown(false)
-    setItems([{ name: '', clothProvidedBy: 'Customer', fabricSelection: null }])
+    setItems([{ name: '', clothProvidedBy: 'Customer', fabricType: null, fabricSelection: null, loosePieceNote: '' }])
     setOrderDate(today()); setTotal(''); setAdvance('0'); setNotes(''); setFeedback(null); setNoMatch(false); setOpen(true)
   }
 
@@ -88,10 +88,13 @@ export default function CreateOrderSheet({
   }
 
   const hasFabricError = items.some(it =>
-    it.clothProvidedBy === 'Tailor' && it.fabricSelection &&
+    it.clothProvidedBy === 'Tailor' && it.fabricType === 'lot' && it.fabricSelection &&
     parseFloat(it.fabricSelection.metersUsed) > it.fabricSelection.availableMeters,
   )
-  const canSave = !isPending && !!selectedCustomer && items.some(i => i.name.trim()) && !!orderDate && Number(total) > 0 && !hasFabricError
+  const hasLoosePieceError = items.some(it =>
+    it.clothProvidedBy === 'Tailor' && it.fabricType === 'loose' && !it.loosePieceNote.trim(),
+  )
+  const canSave = !isPending && !!selectedCustomer && items.some(i => i.name.trim()) && !!orderDate && Number(total) > 0 && !hasFabricError && !hasLoosePieceError
 
   return (
     <>
@@ -185,7 +188,7 @@ export default function CreateOrderSheet({
                       onRemove={() => setItems(prev => prev.filter((_, i) => i !== idx))}
                     />
                   ))}
-                  <button onClick={() => setItems(prev => [...prev, { name: '', clothProvidedBy: 'Customer', fabricSelection: null }])}
+                  <button onClick={() => setItems(prev => [...prev, { name: '', clothProvidedBy: 'Customer', fabricType: null, fabricSelection: null, loosePieceNote: '' }])}
                     className="w-full h-11 rounded-xl border border-black bg-white text-[13px] text-black font-semibold active:scale-95 transition-transform">
                     + Add item
                   </button>

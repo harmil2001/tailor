@@ -37,9 +37,14 @@ export default function FabricCard({ fabric }: { fabric: Fabric }) {
               {fabric.pattern}
             </span>
           </div>
-          <span className="inline-block mt-2 text-[11px] font-semibold text-[#45464d] bg-white/60 px-2.5 py-0.5 rounded-full">
-            {fabric.color}
-          </span>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-[11px] font-semibold text-[#45464d] bg-white/60 px-2.5 py-0.5 rounded-full">
+              {fabric.color}
+            </span>
+            <span className="text-[11px] font-mono font-bold text-[#45464d] bg-white/80 px-2.5 py-0.5 rounded-full tracking-widest border border-black/10">
+              {fabric.code}
+            </span>
+          </div>
         </div>
 
         {/* White body */}
@@ -73,7 +78,6 @@ export default function FabricCard({ fabric }: { fabric: Fabric }) {
             <div>
               <p className="text-[13px] font-medium text-[#0b1c30]">Dealer: {fabric.dealerName}</p>
               <p className="text-[11px] text-[#76777d] mt-0.5">Added {addedDate}</p>
-              <p className="text-[11px] font-mono font-bold text-[#76777d] tracking-widest mt-0.5">{fabric.code}</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-semibold tracking-widest text-[#45464d] uppercase">Sell</p>

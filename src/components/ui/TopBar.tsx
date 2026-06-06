@@ -1,5 +1,7 @@
+import { Suspense } from 'react'
 import TieLogo from './TieLogo'
 import ProfileSheet from './ProfileSheet'
+import LowStockBell from './LowStockBell'
 
 interface TopBarProps {
   name: string
@@ -18,7 +20,13 @@ export default function TopBar({ name, email }: TopBarProps) {
             My Brothers
           </h1>
         </div>
-        <ProfileSheet name={name} email={email} />
+
+        <div className="flex items-center gap-1">
+          <Suspense fallback={null}>
+            <LowStockBell />
+          </Suspense>
+          <ProfileSheet name={name} email={email} />
+        </div>
       </div>
     </header>
   )

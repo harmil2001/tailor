@@ -1,16 +1,17 @@
 import Link from 'next/link'
-import { count, sum, eq, inArray, asc, gte, and } from 'drizzle-orm'
+import { count, sum, eq, inArray, asc, gte, and, isNull } from 'drizzle-orm'
 import { Users, ShoppingBag, Clock, CheckCircle, ChevronRight } from 'lucide-react'
 import { db } from '@/db'
-import { orders, customers } from '@/db/schema'
+import { orders, customers, lowStockAlerts } from '@/db/schema'
 import CreateCustomerSheet from '@/components/customers/CreateCustomerSheet'
 import CreateOrderSheet from '@/components/orders/CreateOrderSheet'
+import LowStockBanner from '@/components/inventory/LowStockBanner'
 import { getDateFrom } from './orders/constants'
 
 async function getDashboardData() {
   const monthFrom = getDateFrom('current')!
 
-  const [totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, allCustomers] = await Promise.all([
+  const [totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, allCustomers, lowStockAlertsData] = await Promise.all([
     db.select({ count: count() }).from(customers),
     db.select({ count: count() }).from(orders).where(
       and(inArray(orders.status, ['Pending', 'Stitching']), gte(orders.orderDate, monthFrom))
@@ -25,16 +26,21 @@ async function getDashboardData() {
     }).from(orders).where(gte(orders.orderDate, monthFrom)),
     db.select({ id: customers.id, name: customers.name, phone: customers.phone })
       .from(customers).orderBy(asc(customers.name)),
+    db.query.lowStockAlerts.findMany({
+      with: { fabric: true },
+      where: isNull(lowStockAlerts.acknowledgedAt),
+    }),
   ])
 
   return {
-    totalCustomers: Number(totalCustomers[0]?.count ?? 0),
-    activeOrders:   Number(activeOrders[0]?.count ?? 0),
-    readyOrders:    Number(readyOrders[0]?.count ?? 0),
-    monthOrders:    Number(monthOrders[0]?.count ?? 0),
-    monthRevenue:   parseFloat(monthRevenue[0]?.total     ?? '0'),
-    monthCollected: parseFloat(monthRevenue[0]?.collected ?? '0'),
+    totalCustomers:  Number(totalCustomers[0]?.count ?? 0),
+    activeOrders:    Number(activeOrders[0]?.count ?? 0),
+    readyOrders:     Number(readyOrders[0]?.count ?? 0),
+    monthOrders:     Number(monthOrders[0]?.count ?? 0),
+    monthRevenue:    parseFloat(monthRevenue[0]?.total     ?? '0'),
+    monthCollected:  parseFloat(monthRevenue[0]?.collected ?? '0'),
     allCustomers,
+    lowStockAlerts: lowStockAlertsData,
   }
 }
 
@@ -45,12 +51,15 @@ function fmtRevenue(n: number) {
 }
 
 export default async function DashboardPage() {
-  const { totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, monthCollected, allCustomers } = await getDashboardData()
+  const { totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, monthCollected, allCustomers, lowStockAlerts: lowStockAlertsData } = await getDashboardData()
   const monthBalance      = monthRevenue - monthCollected
   const monthCollectionPct = monthRevenue > 0 ? Math.round((monthCollected / monthRevenue) * 100) : 0
 
   return (
     <div className="py-6 flex flex-col gap-6 max-w-lg mx-auto">
+
+      {/* Low stock alert */}
+      {lowStockAlertsData.length > 0 && <LowStockBanner alerts={lowStockAlertsData} />}
 
       {/* Quick Actions */}
       <section className="grid grid-cols-2 gap-3">

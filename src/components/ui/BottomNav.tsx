@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Users, FileText, TrendingUp, Megaphone } from 'lucide-react'
+import { Home, Users, FileText, TrendingUp, Package } from 'lucide-react'
 
 const tabs = [
-  { href: '/',          label: 'Home',      icon: Home       },
-  { href: '/customers', label: 'Customers', icon: Users      },
-  { href: '/orders',    label: 'Orders',    icon: FileText   },
-  { href: '/revenue',   label: 'Revenue',   icon: TrendingUp },
-  { href: '/marketing', label: 'Marketing', icon: Megaphone  },
+  { href: '/',           label: 'Home',      icon: Home       },
+  { href: '/customers',  label: 'Customers', icon: Users      },
+  { href: '/orders',     label: 'Orders',    icon: FileText   },
+  { href: '/revenue',    label: 'Revenue',   icon: TrendingUp },
+  { href: '/inventory',  label: 'Stock',     icon: Package    },
 ]
 
 export default function BottomNav() {

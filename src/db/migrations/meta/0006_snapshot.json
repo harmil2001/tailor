@@ -1,0 +1,87 @@
+{
+  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "prevId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.customers": {
+      "name": "customers",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "uuid", "primaryKey": true, "notNull": true, "default": "gen_random_uuid()" },
+        "name": { "name": "name", "type": "text", "primaryKey": false, "notNull": true },
+        "phone": { "name": "phone", "type": "text", "primaryKey": false, "notNull": true },
+        "measurements": { "name": "measurements", "type": "jsonb", "primaryKey": false, "notNull": false, "default": "'{}'::jsonb" },
+        "created_at": { "name": "created_at", "type": "timestamp", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {}, "foreignKeys": {}, "compositePrimaryKeys": {}, "uniqueConstraints": {}, "policies": {}, "checkConstraints": {}, "isRLSEnabled": false
+    },
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "uuid", "primaryKey": true, "notNull": true, "default": "gen_random_uuid()" },
+        "customer_id": { "name": "customer_id", "type": "uuid", "primaryKey": false, "notNull": true },
+        "user_id": { "name": "user_id", "type": "uuid", "primaryKey": false, "notNull": false },
+        "items": { "name": "items", "type": "jsonb", "primaryKey": false, "notNull": true, "default": "'[]'::jsonb" },
+        "order_date": { "name": "order_date", "type": "date", "primaryKey": false, "notNull": true },
+        "total_amount": { "name": "total_amount", "type": "numeric(10, 2)", "primaryKey": false, "notNull": true },
+        "advance_paid": { "name": "advance_paid", "type": "numeric(10, 2)", "primaryKey": false, "notNull": true, "default": "'0'" },
+        "status": { "name": "status", "type": "order_status", "typeSchema": "public", "primaryKey": false, "notNull": true, "default": "'Pending'" },
+        "notes": { "name": "notes", "type": "text", "primaryKey": false, "notNull": false },
+        "created_at": { "name": "created_at", "type": "timestamp", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orders_customer_id_customers_id_fk": { "name": "orders_customer_id_customers_id_fk", "tableFrom": "orders", "tableTo": "customers", "columnsFrom": ["customer_id"], "columnsTo": ["id"], "onDelete": "cascade", "onUpdate": "no action" },
+        "orders_user_id_users_id_fk": { "name": "orders_user_id_users_id_fk", "tableFrom": "orders", "tableTo": "users", "columnsFrom": ["user_id"], "columnsTo": ["id"], "onDelete": "set null", "onUpdate": "no action" }
+      },
+      "compositePrimaryKeys": {}, "uniqueConstraints": {}, "policies": {}, "checkConstraints": {}, "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "uuid", "primaryKey": true, "notNull": true, "default": "gen_random_uuid()" },
+        "name": { "name": "name", "type": "text", "primaryKey": false, "notNull": true },
+        "email": { "name": "email", "type": "text", "primaryKey": false, "notNull": true },
+        "password_hash": { "name": "password_hash", "type": "text", "primaryKey": false, "notNull": true },
+        "created_at": { "name": "created_at", "type": "timestamp", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {}, "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": { "users_email_unique": { "name": "users_email_unique", "nullsNotDistinct": false, "columns": ["email"] } },
+      "policies": {}, "checkConstraints": {}, "isRLSEnabled": false
+    },
+    "public.fabrics": {
+      "name": "fabrics",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "uuid", "primaryKey": true, "notNull": true, "default": "gen_random_uuid()" },
+        "brand": { "name": "brand", "type": "text", "primaryKey": false, "notNull": true },
+        "dealer_name": { "name": "dealer_name", "type": "text", "primaryKey": false, "notNull": true },
+        "color": { "name": "color", "type": "text", "primaryKey": false, "notNull": true },
+        "pattern": { "name": "pattern", "type": "fabric_pattern", "typeSchema": "public", "primaryKey": false, "notNull": true },
+        "purchase_price_per_meter": { "name": "purchase_price_per_meter", "type": "numeric(10, 2)", "primaryKey": false, "notNull": true },
+        "selling_price_factor": { "name": "selling_price_factor", "type": "numeric(10, 2)", "primaryKey": false, "notNull": true, "default": "'1'" },
+        "total_meters": { "name": "total_meters", "type": "numeric(10, 3)", "primaryKey": false, "notNull": true },
+        "available_meters": { "name": "available_meters", "type": "numeric(10, 3)", "primaryKey": false, "notNull": true },
+        "created_at": { "name": "created_at", "type": "timestamp", "primaryKey": false, "notNull": true, "default": "now()" },
+        "updated_at": { "name": "updated_at", "type": "timestamp", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {}, "foreignKeys": {}, "compositePrimaryKeys": {}, "uniqueConstraints": {}, "policies": {}, "checkConstraints": {}, "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.order_status": {
+      "name": "order_status", "schema": "public",
+      "values": ["Pending", "Stitching", "Ready", "Delivered", "Cancelled"]
+    },
+    "public.fabric_pattern": {
+      "name": "fabric_pattern", "schema": "public",
+      "values": ["Plain", "Printed", "Chequered", "Striped", "Dotted", "Embroidered", "Jacquard"]
+    }
+  },
+  "schemas": {}, "sequences": {}, "roles": {}, "policies": {}, "views": {},
+  "_meta": { "columns": {}, "schemas": {}, "tables": {} }
+}

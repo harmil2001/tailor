@@ -20,6 +20,16 @@ export const orderStatusEnum = pgEnum('order_status', [
   'Cancelled',
 ])
 
+export const fabricPatternEnum = pgEnum('fabric_pattern', [
+  'Plain',
+  'Printed',
+  'Chequered',
+  'Striped',
+  'Dotted',
+  'Embroidered',
+  'Jacquard',
+])
+
 // ---------- Users ----------
 // Minimal table for 5 fixed admin accounts (credentials auth via Auth.js)
 
@@ -61,10 +71,44 @@ export const orders = pgTable('orders', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// ---------- Fabrics (Inventory) ----------
+
+export const fabrics = pgTable('fabrics', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  brand: text('brand').notNull(),
+  dealerName: text('dealer_name').notNull(),
+  color: text('color').notNull(),
+  pattern: fabricPatternEnum('pattern').notNull(),
+  purchasePricePerMeter: numeric('purchase_price_per_meter', { precision: 10, scale: 2 }).notNull(),
+  sellingPriceFactor: numeric('selling_price_factor', { precision: 10, scale: 2 }).notNull().default('1'),
+  totalMeters: numeric('total_meters', { precision: 10, scale: 3 }).notNull(),
+  availableMeters: numeric('available_meters', { precision: 10, scale: 3 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+})
+
+// ---------- Low Stock Alerts ----------
+
+export const lowStockAlerts = pgTable('low_stock_alerts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  fabricId: uuid('fabric_id')
+    .notNull()
+    .references(() => fabrics.id, { onDelete: 'cascade' }),
+  // snapshot of meters at the moment the alert was triggered
+  availableMeters: numeric('available_meters', { precision: 10, scale: 3 }).notNull(),
+  totalMeters: numeric('total_meters', { precision: 10, scale: 3 }).notNull(),
+  // null = active/unacknowledged
+  acknowledgedAt: timestamp('acknowledged_at'),
+  acknowledgedBy: uuid('acknowledged_by')
+    .references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // ---------- Relations ----------
 
 export const usersRelations = relations(users, ({ many }) => ({
   orders: many(orders),
+  acknowledgedAlerts: many(lowStockAlerts),
 }))
 
 export const customersRelations = relations(customers, ({ many }) => ({
@@ -82,6 +126,21 @@ export const ordersRelations = relations(orders, ({ one }) => ({
   }),
 }))
 
+export const fabricsRelations = relations(fabrics, ({ many }) => ({
+  lowStockAlerts: many(lowStockAlerts),
+}))
+
+export const lowStockAlertsRelations = relations(lowStockAlerts, ({ one }) => ({
+  fabric: one(fabrics, {
+    fields: [lowStockAlerts.fabricId],
+    references: [fabrics.id],
+  }),
+  acknowledgedByUser: one(users, {
+    fields: [lowStockAlerts.acknowledgedBy],
+    references: [users.id],
+  }),
+}))
+
 // ---------- Inferred Types ----------
 
 export type User = typeof users.$inferSelect
@@ -95,3 +154,10 @@ export type NewOrder = typeof orders.$inferInsert
 
 export type OrderStatus = Order['status']
 export type ClothProvidedBy = 'Customer' | 'Tailor'
+
+export type Fabric = typeof fabrics.$inferSelect
+export type NewFabric = typeof fabrics.$inferInsert
+export type FabricPattern = Fabric['pattern']
+
+export type LowStockAlert = typeof lowStockAlerts.$inferSelect
+export type NewLowStockAlert = typeof lowStockAlerts.$inferInsert

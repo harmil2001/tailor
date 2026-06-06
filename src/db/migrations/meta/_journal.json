@@ -33,8 +33,29 @@
     {
       "idx": 4,
       "version": "7",
-      "when": 1748217600000,
+      "when": 1779700000000,
       "tag": "0004_items_cloth_per_item",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779800000000,
+      "tag": "0005_fabrics_inventory",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779900000000,
+      "tag": "0006_fabrics_updated_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780730671252,
+      "tag": "0007_parallel_scourge",
       "breakpoints": true
     }
   ]

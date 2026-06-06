@@ -6,7 +6,7 @@ import type { FabricPattern } from '@/db/schema'
 import FabricCard from '@/components/inventory/FabricCard'
 import CreateFabricSheet from '@/components/inventory/CreateFabricSheet'
 import InventoryFilters from './_components/InventoryFilters'
-import { getDateFrom } from '../orders/constants'
+import { getDateFrom, getDateTo } from '../orders/constants'
 
 const PATTERNS: FabricPattern[] = ['Plain', 'Printed', 'Chequered', 'Striped', 'Dotted', 'Embroidered', 'Jacquard']
 
@@ -20,12 +20,14 @@ export default async function InventoryPage({ searchParams }: Props) {
   const activePattern = PATTERNS.find(p => p === pattern) ?? null
   const isLowFilter   = filter === 'low'
   const dateFrom      = getDateFrom(added ?? null)
+  const dateTo        = getDateTo(added ?? null)
 
   const conditions = [
-    activePattern ? eq(fabrics.pattern, activePattern)            : undefined,
-    dealer        ? ilike(fabrics.dealerName, `%${dealer}%`)      : undefined,
-    brand         ? ilike(fabrics.brand,      `%${brand}%`)       : undefined,
-    dateFrom      ? gte(fabrics.createdAt, new Date(dateFrom))    : undefined,
+    activePattern ? eq(fabrics.pattern, activePattern)              : undefined,
+    dealer        ? ilike(fabrics.dealerName, `%${dealer}%`)        : undefined,
+    brand         ? ilike(fabrics.brand,      `%${brand}%`)         : undefined,
+    dateFrom      ? gte(fabrics.createdAt, new Date(dateFrom))      : undefined,
+    dateTo        ? lt(fabrics.createdAt,  new Date(dateTo))        : undefined,
     isLowFilter
       ? sql`${fabrics.availableMeters}::numeric < ${fabrics.totalMeters}::numeric * 0.2`
       : undefined,

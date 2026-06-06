@@ -5,91 +5,80 @@ import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Plus, X, Loader2, CheckCircle2, AlertCircle, Search, ShoppingBag, ArrowRight } from 'lucide-react'
 import { createOrder } from '@/app/(app)/orders/actions'
-import type { ClothProvidedBy } from '@/db/schema'
+import OrderItemRow, { type OrderItemState } from './OrderItemRow'
+import type { Fabric } from '@/db/schema'
 
-type OrderItem = { name: string; clothProvidedBy: ClothProvidedBy }
 type Customer = { id: string; name: string; phone: string }
-type Feedback = { type: 'success' | 'error'; message: string }
+type Feedback  = { type: 'success' | 'error'; message: string }
 
-function today() {
-  return new Date().toISOString().split('T')[0]
-}
+function today() { return new Date().toISOString().split('T')[0] }
+
+const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
+const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
 
 export default function CreateOrderSheet({
-  customers,
-  variant = 'button',
+  customers, fabrics, variant = 'button',
 }: {
   customers: Customer[]
+  fabrics: Fabric[]
   variant?: 'button' | 'fab' | 'inline' | 'card'
 }) {
-  const router                              = useRouter()
-  const [mounted, setMounted]               = useState(false)
-  const [open, setOpen]                     = useState(false)
-  const [selectedCustomer, setSelected]     = useState<Customer | null>(null)
-  const [searchQuery, setSearchQuery]       = useState('')
-  const [showDropdown, setShowDropdown]     = useState(false)
-  const [noMatchToast, setNoMatchToast]     = useState(false)
-  const [items, setItems]                   = useState<OrderItem[]>([{ name: '', clothProvidedBy: 'Customer' }])
-  const [orderDate, setOrderDate]           = useState(today())
-  const [total, setTotal]                   = useState('')
-  const [advance, setAdvance]               = useState('0')
-  const [notes, setNotes]                   = useState('')
-  const [isPending, start]                  = useTransition()
-  const [feedback, setFeedback]             = useState<Feedback | null>(null)
-  const searchRef                           = useRef<HTMLInputElement>(null)
+  const router                         = useRouter()
+  const [mounted, setMounted]          = useState(false)
+  const [open, setOpen]                = useState(false)
+  const [selectedCustomer, setSelected]= useState<Customer | null>(null)
+  const [searchQuery, setSearchQuery]  = useState('')
+  const [showDropdown, setShowDropdown]= useState(false)
+  const [noMatchToast, setNoMatch]     = useState(false)
+  const [items, setItems]              = useState<OrderItemState[]>([{ name: '', clothProvidedBy: 'Customer', fabricSelection: null }])
+  const [orderDate, setOrderDate]      = useState(today())
+  const [total, setTotal]              = useState('')
+  const [advance, setAdvance]          = useState('0')
+  const [notes, setNotes]              = useState('')
+  const [isPending, start]             = useTransition()
+  const [feedback, setFeedback]        = useState<Feedback | null>(null)
+  const searchRef                      = useRef<HTMLInputElement>(null)
 
   const filtered = searchQuery.trim()
-    ? customers.filter(c =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.phone.includes(searchQuery),
-      )
+    ? customers.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery))
     : []
 
   useEffect(() => { setMounted(true) }, [])
-
   useEffect(() => {
     if (!feedback) return
-    if (feedback.type === 'success') {
-      const t = setTimeout(() => { setOpen(false); router.refresh() }, 1200)
-      return () => clearTimeout(t)
-    }
-    const t = setTimeout(() => setFeedback(null), 3000)
-    return () => clearTimeout(t)
+    if (feedback.type === 'success') { const t = setTimeout(() => { setOpen(false); router.refresh() }, 1200); return () => clearTimeout(t) }
+    const t = setTimeout(() => setFeedback(null), 3000); return () => clearTimeout(t)
   }, [feedback, router])
-
   useEffect(() => {
     if (!noMatchToast) return
-    const t = setTimeout(() => setNoMatchToast(false), 3000)
-    return () => clearTimeout(t)
+    const t = setTimeout(() => setNoMatch(false), 3000); return () => clearTimeout(t)
   }, [noMatchToast])
 
   function handleOpen() {
     setSelected(null); setSearchQuery(''); setShowDropdown(false)
-    setItems([{ name: '', clothProvidedBy: 'Customer' }])
-    setOrderDate(today()); setTotal(''); setAdvance('0'); setNotes('')
-    setFeedback(null); setNoMatchToast(false); setOpen(true)
-  }
-
-  function handleSearchBlur() {
-    setTimeout(() => setShowDropdown(false), 150)
-    if (searchQuery.trim() && filtered.length === 0) setNoMatchToast(true)
-  }
-
-  function selectCustomer(c: Customer) {
-    setSelected(c); setSearchQuery(''); setShowDropdown(false)
-  }
-
-  function clearCustomer() {
-    setSelected(null); setSearchQuery(''); setShowDropdown(false)
-    setTimeout(() => searchRef.current?.focus(), 50)
+    setItems([{ name: '', clothProvidedBy: 'Customer', fabricSelection: null }])
+    setOrderDate(today()); setTotal(''); setAdvance('0'); setNotes(''); setFeedback(null); setNoMatch(false); setOpen(true)
   }
 
   function handleSave() {
     start(async () => {
       const result = await createOrder({
         customerId: selectedCustomer!.id,
-        items, orderDate,
-        totalAmount: total, advancePaid: advance,
+        items: items.map(it => ({
+          name:            it.name,
+          clothProvidedBy: it.clothProvidedBy,
+          fabric: it.clothProvidedBy === 'Tailor' && it.fabricSelection && parseFloat(it.fabricSelection.metersUsed) > 0
+            ? {
+                fabricId:    it.fabricSelection.fabricId,
+                brand:       it.fabricSelection.brand,
+                color:       it.fabricSelection.color,
+                metersUsed:  parseFloat(it.fabricSelection.metersUsed),
+                pricePerMeter: it.fabricSelection.pricePerMeter,
+                fabricTotal: parseFloat(it.fabricSelection.metersUsed) * it.fabricSelection.pricePerMeter,
+              }
+            : undefined,
+        })),
+        orderDate, totalAmount: total, advancePaid: advance,
         notes: notes.trim() || undefined,
       })
       setFeedback(result.success
@@ -98,26 +87,21 @@ export default function CreateOrderSheet({
     })
   }
 
-  const canSave = !isPending && !!selectedCustomer && items.some(i => i.name.trim()) && !!orderDate && Number(total) > 0
-
-  const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
-  const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
+  const hasFabricError = items.some(it =>
+    it.clothProvidedBy === 'Tailor' && it.fabricSelection &&
+    parseFloat(it.fabricSelection.metersUsed) > it.fabricSelection.availableMeters,
+  )
+  const canSave = !isPending && !!selectedCustomer && items.some(i => i.name.trim()) && !!orderDate && Number(total) > 0 && !hasFabricError
 
   return (
     <>
       {variant === 'fab' ? (
-        <button onClick={handleOpen} aria-label="New order" className="fixed bottom-24 right-6 w-14 h-14 bg-[#775a19] text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all z-40">
-          <Plus size={26} />
-        </button>
+        <button onClick={handleOpen} aria-label="New order" className="fixed bottom-24 right-6 w-14 h-14 bg-[#775a19] text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all z-40"><Plus size={26} /></button>
       ) : variant === 'inline' ? (
-        <button onClick={handleOpen} className="h-12 px-6 bg-black text-white rounded-xl text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-transform">
-          <Plus size={16} /> New Order
-        </button>
+        <button onClick={handleOpen} className="h-12 px-6 bg-black text-white rounded-xl text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-transform"><Plus size={16} /> New Order</button>
       ) : variant === 'card' ? (
         <button onClick={handleOpen} className="w-full bg-[#0b1c30] rounded-[20px] p-5 flex flex-col justify-between h-36 active:scale-[0.97] transition-transform text-left">
-          <div className="w-10 h-10 rounded-xl bg-[#c9a84c]/20 flex items-center justify-center">
-            <ShoppingBag size={20} className="text-[#c9a84c]" />
-          </div>
+          <div className="w-10 h-10 rounded-xl bg-[#c9a84c]/20 flex items-center justify-center"><ShoppingBag size={20} className="text-[#c9a84c]" /></div>
           <div>
             <p className="text-[17px] font-bold text-white" style={{ fontFamily: 'Manrope' }}>New Order</p>
             <div className="flex items-center justify-between mt-0.5">
@@ -127,27 +111,20 @@ export default function CreateOrderSheet({
           </div>
         </button>
       ) : (
-        <button onClick={handleOpen} className="w-full h-14 flex items-center justify-center gap-2 bg-black text-white rounded-xl text-[16px] font-semibold active:scale-95 transition-transform">
-          <Plus size={20} /> New Order
-        </button>
+        <button onClick={handleOpen} className="w-full h-14 flex items-center justify-center gap-2 bg-black text-white rounded-xl text-[16px] font-semibold active:scale-95 transition-transform"><Plus size={20} /> New Order</button>
       )}
 
       {mounted && open && createPortal(
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
-
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#c6c6cd]/30 flex-shrink-0">
-            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/40 active:scale-95 transition-transform">
-              <X size={16} className="text-[#45464d]" />
-            </button>
+            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/40 active:scale-95 transition-transform"><X size={16} className="text-[#45464d]" /></button>
             <p className="text-[17px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>New Order</p>
             <div className="w-9" />
           </div>
 
-          {/* No-match toast */}
           {noMatchToast && (
             <div className="mx-5 mt-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#ffdad6] text-[#93000a] text-[13px] font-medium flex-shrink-0">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              No customer found. Add them first from the Customers tab.
+              <AlertCircle size={16} className="flex-shrink-0" /> No customer found. Add them first from the Customers tab.
             </div>
           )}
 
@@ -160,8 +137,7 @@ export default function CreateOrderSheet({
             )}
 
             <div className="max-w-lg mx-auto flex flex-col gap-5">
-
-              {/* Customer search */}
+              {/* Customer */}
               <div>
                 <label className={labelCls}>Customer</label>
                 {selectedCustomer ? (
@@ -170,38 +146,28 @@ export default function CreateOrderSheet({
                       <p className="text-[14px] font-semibold text-[#0b1c30] truncate">{selectedCustomer.name}</p>
                       <p className="text-[11px] text-[#76777d]">{selectedCustomer.phone}</p>
                     </div>
-                    <button onClick={clearCustomer} className="w-7 h-7 flex items-center justify-center rounded-full bg-[#e5e5ea] flex-shrink-0">
-                      <X size={13} className="text-[#45464d]" />
-                    </button>
+                    <button onClick={() => { setSelected(null); setSearchQuery(''); setShowDropdown(false); setTimeout(() => searchRef.current?.focus(), 50) }} className="w-7 h-7 flex items-center justify-center rounded-full bg-[#e5e5ea] flex-shrink-0"><X size={13} className="text-[#45464d]" /></button>
                   </div>
                 ) : (
                   <div className="relative">
                     <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#76777d] pointer-events-none" />
-                    <input
-                      ref={searchRef}
-                      type="text"
-                      value={searchQuery}
+                    <input ref={searchRef} type="text" value={searchQuery}
                       onChange={e => { setSearchQuery(e.target.value); setShowDropdown(true) }}
                       onFocus={() => setShowDropdown(true)}
-                      onBlur={handleSearchBlur}
+                      onBlur={() => { setTimeout(() => setShowDropdown(false), 150); if (searchQuery.trim() && filtered.length === 0) setNoMatch(true) }}
                       placeholder="Search by name or phone…"
                       className="w-full h-12 pl-10 pr-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors"
                     />
                     {showDropdown && searchQuery.trim() && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#c6c6cd]/60 rounded-xl shadow-lg z-10 overflow-hidden">
                         {filtered.length > 0 ? filtered.slice(0, 6).map((c, i) => (
-                          <button
-                            key={c.id}
-                            onMouseDown={() => selectCustomer(c)}
-                            className={`w-full flex flex-col px-4 py-3 text-left active:bg-[#f8f9ff] ${i < filtered.length - 1 ? 'border-b border-[#c6c6cd]/20' : ''}`}
-                          >
+                          <button key={c.id} onMouseDown={() => { setSelected(c); setSearchQuery(''); setShowDropdown(false) }}
+                            className={`w-full flex flex-col px-4 py-3 text-left active:bg-[#f8f9ff] ${i < filtered.length - 1 ? 'border-b border-[#c6c6cd]/20' : ''}`}>
                             <span className="text-[14px] font-medium text-[#0b1c30]">{c.name}</span>
                             <span className="text-[11px] text-[#76777d]">{c.phone}</span>
                           </button>
                         )) : (
-                          <div className="px-4 py-3 flex items-center gap-2 text-[13px] text-[#93000a]">
-                            <AlertCircle size={14} /> No customer found
-                          </div>
+                          <div className="px-4 py-3 flex items-center gap-2 text-[13px] text-[#93000a]"><AlertCircle size={14} /> No customer found</div>
                         )}
                       </div>
                     )}
@@ -209,39 +175,18 @@ export default function CreateOrderSheet({
                 )}
               </div>
 
+              {/* Items */}
               <div>
                 <label className={labelCls}>Items</label>
                 <div className="flex flex-col gap-2">
                   {items.map((item, idx) => (
-                    <div key={idx} className="flex flex-col gap-2 p-3 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={e => setItems(prev => prev.map((it, i) => i === idx ? { ...it, name: e.target.value } : it))}
-                          placeholder="e.g. Kurta, Suit, Shirt…"
-                          className="flex-1 h-11 px-3 bg-white border border-[#c6c6cd] rounded-lg text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors"
-                        />
-                        {items.length > 1 && (
-                          <button onClick={() => setItems(prev => prev.filter((_, i) => i !== idx))} className="w-11 h-11 flex items-center justify-center rounded-lg bg-[#ffdad6] text-[#93000a] flex-shrink-0">
-                            <X size={15} />
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Cloth</span>
-                        <div className="flex gap-1.5">
-                          {(['Customer', 'Tailor'] as const).map(opt => (
-                            <button key={opt} onClick={() => setItems(prev => prev.map((it, i) => i === idx ? { ...it, clothProvidedBy: opt } : it))}
-                              className={`px-3 h-7 rounded-lg text-[11px] font-semibold transition-colors ${item.clothProvidedBy === opt ? 'bg-black text-white' : 'bg-white border border-[#c6c6cd] text-[#45464d]'}`}>
-                              {opt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    <OrderItemRow key={idx} item={item} showRemove={items.length > 1} fabrics={fabrics}
+                      onChange={updated => setItems(prev => prev.map((it, i) => i === idx ? updated : it))}
+                      onRemove={() => setItems(prev => prev.filter((_, i) => i !== idx))}
+                    />
                   ))}
-                  <button onClick={() => setItems(prev => [...prev, { name: '', clothProvidedBy: 'Customer' }])} className="w-full h-11 rounded-xl border border-black bg-white text-[13px] text-black font-semibold active:scale-95 transition-transform">
+                  <button onClick={() => setItems(prev => [...prev, { name: '', clothProvidedBy: 'Customer', fabricSelection: null }])}
+                    className="w-full h-11 rounded-xl border border-black bg-white text-[13px] text-black font-semibold active:scale-95 transition-transform">
                     + Add item
                   </button>
                 </div>
@@ -253,21 +198,14 @@ export default function CreateOrderSheet({
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>Total (₹)</label>
-                  <input type="number" inputMode="numeric" value={total} onChange={e => setTotal(e.target.value)} placeholder="0" className={inputCls} />
-                </div>
-                <div>
-                  <label className={labelCls}>Advance (₹)</label>
-                  <input type="number" inputMode="numeric" value={advance} onChange={e => setAdvance(e.target.value)} placeholder="0" className={inputCls} />
-                </div>
+                <div><label className={labelCls}>Total (₹)</label><input type="number" inputMode="numeric" value={total} onChange={e => setTotal(e.target.value)} placeholder="0" className={inputCls} /></div>
+                <div><label className={labelCls}>Advance (₹)</label><input type="number" inputMode="numeric" value={advance} onChange={e => setAdvance(e.target.value)} placeholder="0" className={inputCls} /></div>
               </div>
 
               <div>
                 <label className={labelCls}>Notes <span className="normal-case tracking-normal font-normal text-[#76777d]">(optional)</span></label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special instructions…" rows={3} className="w-full px-4 py-3 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors resize-none" />
               </div>
-
             </div>
           </div>
 
@@ -278,9 +216,8 @@ export default function CreateOrderSheet({
               </button>
             </div>
           </div>
-
         </div>,
-        document.body
+        document.body,
       )}
     </>
   )

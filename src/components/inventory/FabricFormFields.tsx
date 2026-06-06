@@ -91,7 +91,16 @@ export default function FabricFormFields({
         </div>
         <div>
           <label className={labelCls}>Available Metres</label>
-          <input type="number" inputMode="decimal" step="0.5" value={form.availableMeters} onChange={e => set('availableMeters', e.target.value)} placeholder="0" className={inputCls} />
+          <input
+            type="number" inputMode="decimal" step="0.5"
+            value={form.availableMeters}
+            onChange={e => set('availableMeters', e.target.value)}
+            placeholder="0"
+            className={`${inputCls} ${form.availableMeters && form.totalMeters && Number(form.availableMeters) > Number(form.totalMeters) ? 'border-[#ba1a1a] focus:border-[#ba1a1a]' : ''}`}
+          />
+          {form.availableMeters && form.totalMeters && Number(form.availableMeters) > Number(form.totalMeters) && (
+            <p className="text-[11px] text-[#ba1a1a] mt-1">Cannot exceed total ({form.totalMeters} m)</p>
+          )}
         </div>
       </div>
 

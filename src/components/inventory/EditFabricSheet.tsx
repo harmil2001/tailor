@@ -61,7 +61,8 @@ export default function EditFabricSheet({
   const canSave = !isPending && !!form.brand.trim() && !!form.dealerName.trim() &&
     !!form.color.trim() && !!form.pattern && Number(form.purchasePricePerMeter) > 0 &&
     Number(form.sellingPriceFactor) > 0 && Number(form.totalMeters) > 0 &&
-    Number(form.availableMeters) >= 0
+    Number(form.availableMeters) >= 0 &&
+    Number(form.availableMeters) <= Number(form.totalMeters)
 
   const btnCls = variant === 'dark'
     ? 'flex items-center gap-2 px-4 h-9 rounded-xl bg-white/15 border border-white/25 text-white text-[13px] font-semibold active:scale-95 transition-transform'

@@ -57,6 +57,13 @@
       "when": 1780730671252,
       "tag": "0007_parallel_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780740657334,
+      "tag": "0008_opposite_reptil",
+      "breakpoints": true
     }
   ]
 }

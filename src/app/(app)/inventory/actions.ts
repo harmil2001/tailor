@@ -7,6 +7,11 @@ import { fabrics } from '@/db/schema'
 import type { FabricPattern } from '@/db/schema'
 import { syncLowStockAlert } from './alertActions'
 
+function generateCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
+
 type FabricPayload = {
   brand: string
   dealerName: string
@@ -42,6 +47,7 @@ export async function createFabric(
     const [row] = await db
       .insert(fabrics)
       .values({
+        code:                   generateCode(),
         brand:                  data.brand.trim(),
         dealerName:             data.dealerName.trim(),
         color:                  data.color.trim(),

@@ -48,7 +48,8 @@ export default function CreateFabricSheet({ variant = 'fab' }: { variant?: 'fab'
   const canSave = !isPending && !!form.brand.trim() && !!form.dealerName.trim() &&
     !!form.color.trim() && !!form.pattern && Number(form.purchasePricePerMeter) > 0 &&
     Number(form.sellingPriceFactor) > 0 && Number(form.totalMeters) > 0 &&
-    Number(form.availableMeters) >= 0
+    Number(form.availableMeters) >= 0 &&
+    Number(form.availableMeters) <= Number(form.totalMeters)
 
   return (
     <>

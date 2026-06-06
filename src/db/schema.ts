@@ -8,7 +8,7 @@ import {
   jsonb,
   date,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 
 // ---------- Enums ----------
 
@@ -62,7 +62,7 @@ export const orders = pgTable('orders', {
     .references(() => customers.id, { onDelete: 'cascade' }),
   userId: uuid('user_id')
     .references(() => users.id, { onDelete: 'set null' }),
-  items: jsonb('items').$type<{ name: string; clothProvidedBy: 'Customer' | 'Tailor' }[]>().notNull().default([]),
+  items: jsonb('items').$type<{ name: string; clothProvidedBy: 'Customer' | 'Tailor'; fabric?: OrderItemFabric }[]>().notNull().default([]),
   orderDate: date('order_date').notNull(),
   totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull(),
   advancePaid: numeric('advance_paid', { precision: 10, scale: 2 }).notNull().default('0'),
@@ -75,6 +75,7 @@ export const orders = pgTable('orders', {
 
 export const fabrics = pgTable('fabrics', {
   id: uuid('id').primaryKey().defaultRandom(),
+  code: text('code').unique().notNull().default(sql`upper(substr(md5(gen_random_uuid()::text), 1, 6))`),
   brand: text('brand').notNull(),
   dealerName: text('dealer_name').notNull(),
   color: text('color').notNull(),
@@ -154,6 +155,15 @@ export type NewOrder = typeof orders.$inferInsert
 
 export type OrderStatus = Order['status']
 export type ClothProvidedBy = 'Customer' | 'Tailor'
+
+export type OrderItemFabric = {
+  fabricId: string
+  brand: string
+  color: string
+  metersUsed: number
+  pricePerMeter: number
+  fabricTotal: number
+}
 
 export type Fabric = typeof fabrics.$inferSelect
 export type NewFabric = typeof fabrics.$inferInsert

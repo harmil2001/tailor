@@ -1,7 +1,7 @@
 import { and, eq, gte, lt, desc } from 'drizzle-orm'
 import { FileText } from 'lucide-react'
 import { db } from '@/db'
-import { orders, customers } from '@/db/schema'
+import { orders, customers, fabrics } from '@/db/schema'
 import type { OrderStatus } from '@/db/schema'
 import FilterRow from './_components/FilterRow'
 import OrderList from './_components/OrderList'
@@ -38,7 +38,7 @@ export default async function OrdersPage({ searchParams }: Props) {
     activeCustomerId ? eq(orders.customerId, activeCustomerId) : undefined,
   )
 
-  const [initialOrders, total, allCustomers] = await Promise.all([
+  const [initialOrders, total, allCustomers, allFabrics] = await Promise.all([
     db.query.orders.findMany({
       with: { customer: true },
       where,
@@ -49,6 +49,7 @@ export default async function OrdersPage({ searchParams }: Props) {
     db.select({ id: customers.id, name: customers.name, phone: customers.phone })
       .from(customers)
       .orderBy(customers.name),
+    db.select().from(fabrics).orderBy(fabrics.brand),
   ])
 
   return (
@@ -77,7 +78,7 @@ export default async function OrdersPage({ searchParams }: Props) {
             <p className="text-[13px] text-[#45464d] mt-1">Try adjusting your filters.</p>
           </div>
           {!activeStatus && !dateFrom && !activeCustomerId && (
-            <CreateOrderSheet customers={allCustomers} variant="inline" />
+            <CreateOrderSheet customers={allCustomers} fabrics={allFabrics} variant="inline" />
           )}
         </div>
       ) : (
@@ -88,7 +89,7 @@ export default async function OrdersPage({ searchParams }: Props) {
         />
       )}
 
-      <CreateOrderSheet customers={allCustomers} variant="fab" />
+      <CreateOrderSheet customers={allCustomers} fabrics={allFabrics} variant="fab" />
 
     </div>
   )

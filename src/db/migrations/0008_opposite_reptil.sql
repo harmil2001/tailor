@@ -1,0 +1,2 @@
+ALTER TABLE "fabrics" ADD COLUMN "code" text DEFAULT upper(substr(md5(gen_random_uuid()::text), 1, 6)) NOT NULL;--> statement-breakpoint
+ALTER TABLE "fabrics" ADD CONSTRAINT "fabrics_code_unique" UNIQUE("code");

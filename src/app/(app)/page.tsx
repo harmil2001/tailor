@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { count, sum, eq, inArray, asc, gte, and, isNull } from 'drizzle-orm'
-import { Users, ShoppingBag, Clock, CheckCircle, ChevronRight } from 'lucide-react'
+import { count, sum, eq, inArray, asc, gte, and, isNull, sql } from 'drizzle-orm'
+import { fmtINR } from '@/lib/formatINR'
+import { Users, ShoppingBag, Clock, CheckCircle, ChevronRight, Store } from 'lucide-react'
 import { db } from '@/db'
-import { orders, customers, lowStockAlerts, fabrics } from '@/db/schema'
+import { orders, customers, lowStockAlerts, fabrics, dealers, dealerLedgerEntries } from '@/db/schema'
 import CreateCustomerSheet from '@/components/customers/CreateCustomerSheet'
 import CreateOrderSheet from '@/components/orders/CreateOrderSheet'
 import LowStockSection from '@/components/inventory/LowStockSection'
@@ -11,7 +12,7 @@ import { getDateFrom } from './orders/constants'
 async function getDashboardData() {
   const monthFrom = getDateFrom('current')!
 
-  const [totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, allCustomers, allFabrics, lowStockAlertsData] = await Promise.all([
+  const [totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, allCustomers, allFabrics, lowStockAlertsData, dealerStats] = await Promise.all([
     db.select({ count: count() }).from(customers),
     db.select({ count: count() }).from(orders).where(
       and(inArray(orders.status, ['Pending', 'Stitching']), gte(orders.orderDate, monthFrom))
@@ -31,6 +32,11 @@ async function getDashboardData() {
       with: { fabric: true },
       where: isNull(lowStockAlerts.acknowledgedAt),
     }),
+    db.select({
+      totalDealers: count(dealers.id),
+      totalCredit:  sql<string>`COALESCE(SUM(${dealerLedgerEntries.creditAmount}), 0)`,
+      totalDebit:   sql<string>`COALESCE(SUM(${dealerLedgerEntries.debitAmount}), 0)`,
+    }).from(dealers).leftJoin(dealerLedgerEntries, eq(dealerLedgerEntries.dealerId, dealers.id)),
   ])
 
   return {
@@ -43,6 +49,9 @@ async function getDashboardData() {
     allCustomers,
     allFabrics,
     lowStockAlerts: lowStockAlertsData,
+    totalDealers:   Number(dealerStats[0]?.totalDealers ?? 0),
+    dealerCredit:   parseFloat(dealerStats[0]?.totalCredit ?? '0'),
+    dealerDebit:    parseFloat(dealerStats[0]?.totalDebit  ?? '0'),
   }
 }
 
@@ -53,9 +62,10 @@ function fmtRevenue(n: number) {
 }
 
 export default async function DashboardPage() {
-  const { totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, monthCollected, allCustomers, allFabrics, lowStockAlerts: lowStockAlertsData } = await getDashboardData()
-  const monthBalance      = monthRevenue - monthCollected
+  const { totalCustomers, activeOrders, readyOrders, monthOrders, monthRevenue, monthCollected, allCustomers, allFabrics, lowStockAlerts: lowStockAlertsData, totalDealers, dealerCredit, dealerDebit } = await getDashboardData()
+  const monthBalance       = monthRevenue - monthCollected
   const monthCollectionPct = monthRevenue > 0 ? Math.round((monthCollected / monthRevenue) * 100) : 0
+  const dealerOutstanding  = dealerCredit - dealerDebit
 
   return (
     <div className="py-6 flex flex-col gap-6 max-w-lg mx-auto">
@@ -158,6 +168,43 @@ export default async function DashboardPage() {
               />
             </div>
             <p className="text-[11px] text-white/40 mt-1.5">{monthCollectionPct}% collected</p>
+          </div>
+        </Link>
+
+        {/* Dealers card */}
+        <Link href="/dealers">
+          <div className="bg-[#fdf6ec] rounded-[20px] border border-[#e8d5b0]/60 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 active:scale-[0.98] transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#f5e6c8] flex items-center justify-center flex-shrink-0">
+                  <Store size={22} className="text-[#775a19]" />
+                </div>
+                <div>
+                  <p className="text-[12px] font-medium text-[#4a5568]">Dealer Accounts</p>
+                  <p className="text-[32px] font-bold text-[#0b1c30] leading-tight" style={{ fontFamily: 'Manrope' }}>
+                    {totalDealers}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-[#775a19]/30" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-[#ffdad6]/50 rounded-[14px] px-3 py-2.5">
+                <p className="text-[10px] font-medium text-[#93000a]/70">Total Credit</p>
+                <p className="text-[14px] font-bold text-[#93000a]">{fmtINR(dealerCredit)}</p>
+              </div>
+              <div className="bg-[#d6f5e3]/60 rounded-[14px] px-3 py-2.5">
+                <p className="text-[10px] font-medium text-[#1a5c34]/70">Total Paid</p>
+                <p className="text-[14px] font-bold text-[#1a5c34]">{fmtINR(dealerDebit)}</p>
+              </div>
+              <div className={`rounded-[14px] px-3 py-2.5 ${dealerOutstanding > 0 ? 'bg-[#fff3e0]' : 'bg-[#f8f9ff]'}`}>
+                <p className="text-[10px] font-medium text-[#45464d]/70">Outstanding</p>
+                <p className={`text-[14px] font-bold ${dealerOutstanding > 0 ? 'text-[#775a19]' : 'text-[#45464d]'}`}>
+                  {dealerOutstanding > 0 ? fmtINR(dealerOutstanding) : '—'}
+                </p>
+              </div>
+            </div>
           </div>
         </Link>
 

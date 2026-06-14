@@ -1,10 +1,7 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { fmtINR } from '@/lib/formatINR'
 import type { DealerWithBalance } from '@/app/(app)/dealers/actions'
-
-function fmt(n: number) {
-  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n)
-}
 
 export default function DealerCard({ dealer }: { dealer: DealerWithBalance }) {
   const initials = dealer.name
@@ -35,8 +32,8 @@ export default function DealerCard({ dealer }: { dealer: DealerWithBalance }) {
             {outstanding === 0
               ? 'Settled'
               : isOwed
-                ? `Outstanding: ₹${fmt(outstanding)}`
-                : `Advance: ₹${fmt(Math.abs(outstanding))}`}
+                ? `Outstanding: ${fmtINR(outstanding)}`
+                : `Advance: ${fmtINR(Math.abs(outstanding))}`}
           </p>
         </div>
 

@@ -105,6 +105,30 @@ export const lowStockAlerts = pgTable('low_stock_alerts', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// ---------- Dealers ----------
+
+export const dealers = pgTable('dealers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// ---------- Dealer Ledger Entries ----------
+
+export const dealerLedgerEntries = pgTable('dealer_ledger_entries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  dealerId: uuid('dealer_id')
+    .notNull()
+    .references(() => dealers.id, { onDelete: 'cascade' }),
+  billDate: date('bill_date').notNull(),
+  particulars: text('particulars').notNull(),
+  voucherType: text('voucher_type').notNull(),
+  voucherNo: text('voucher_no').notNull(),
+  creditAmount: numeric('credit_amount', { precision: 12, scale: 2 }),
+  debitAmount: numeric('debit_amount', { precision: 12, scale: 2 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // ---------- Relations ----------
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -129,6 +153,17 @@ export const ordersRelations = relations(orders, ({ one }) => ({
 
 export const fabricsRelations = relations(fabrics, ({ many }) => ({
   lowStockAlerts: many(lowStockAlerts),
+}))
+
+export const dealersRelations = relations(dealers, ({ many }) => ({
+  ledgerEntries: many(dealerLedgerEntries),
+}))
+
+export const dealerLedgerEntriesRelations = relations(dealerLedgerEntries, ({ one }) => ({
+  dealer: one(dealers, {
+    fields: [dealerLedgerEntries.dealerId],
+    references: [dealers.id],
+  }),
 }))
 
 export const lowStockAlertsRelations = relations(lowStockAlerts, ({ one }) => ({
@@ -171,3 +206,9 @@ export type FabricPattern = Fabric['pattern']
 
 export type LowStockAlert = typeof lowStockAlerts.$inferSelect
 export type NewLowStockAlert = typeof lowStockAlerts.$inferInsert
+
+export type Dealer = typeof dealers.$inferSelect
+export type NewDealer = typeof dealers.$inferInsert
+
+export type DealerLedgerEntry = typeof dealerLedgerEntries.$inferSelect
+export type NewDealerLedgerEntry = typeof dealerLedgerEntries.$inferInsert

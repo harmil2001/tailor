@@ -9,8 +9,8 @@ import { addLedgerEntry } from '@/app/(app)/dealers/actions'
 type Feedback = { type: 'success' | 'error'; message: string }
 type EntryType = 'credit' | 'debit'
 
-const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
-const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
+const inputCls = 'w-full h-12 px-4 bg-canvas border border-line rounded-xl text-[14px] text-ink focus:outline-none focus:border-brand transition-colors'
+const labelCls = 'block text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-2'
 
 const today = () => new Date().toISOString().split('T')[0]
 
@@ -62,7 +62,7 @@ export default function AddLedgerEntrySheet({ dealerId }: { dealerId: string }) 
       <button
         onClick={handleOpen}
         aria-label="Add ledger entry"
-        className="fixed bottom-24 right-6 w-14 h-14 bg-[#775a19] text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all z-40"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-accent text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all z-40"
       >
         <Plus size={24} />
       </button>
@@ -70,17 +70,17 @@ export default function AddLedgerEntrySheet({ dealerId }: { dealerId: string }) 
       {mounted && open && createPortal(
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
 
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[#c6c6cd]/30 flex-shrink-0">
-            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/40 active:scale-95 transition-transform">
-              <X size={16} className="text-[#45464d]" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line/30 flex-shrink-0">
+            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas border border-line/40 active:scale-95 transition-transform">
+              <X size={16} className="text-ink-soft" />
             </button>
-            <p className="text-[17px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>New Entry</p>
+            <p className="text-[17px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>New Entry</p>
             <div className="w-9" />
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             {feedback && (
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium mb-5 ${feedback.type === 'success' ? 'bg-[#d6f5e3] text-[#1a5c34]' : 'bg-[#ffdad6] text-[#93000a]'}`}>
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium mb-5 ${feedback.type === 'success' ? 'bg-success-tint text-success' : 'bg-danger-tint text-danger-ink'}`}>
                 {feedback.type === 'success' ? <CheckCircle2 size={16} className="flex-shrink-0" /> : <AlertCircle size={16} className="flex-shrink-0" />}
                 {feedback.message}
               </div>
@@ -98,9 +98,9 @@ export default function AddLedgerEntrySheet({ dealerId }: { dealerId: string }) 
                       className={`flex-1 h-12 rounded-xl text-[14px] font-semibold capitalize transition-all active:scale-95 ${
                         entryType === type
                           ? type === 'credit'
-                            ? 'bg-[#ffdad6] text-[#93000a] border-2 border-[#ba1a1a]'
-                            : 'bg-[#d6f5e3] text-[#1a5c34] border-2 border-[#2e7d50]'
-                          : 'bg-[#f8f9ff] text-[#45464d] border border-[#c6c6cd]'
+                            ? 'bg-danger-tint text-danger-ink border-2 border-danger'
+                            : 'bg-success-tint text-success border-2 border-success'
+                          : 'bg-canvas text-ink-soft border border-line'
                       }`}
                     >
                       {type === 'credit' ? '📥 Credit (We Owe)' : '📤 Debit (We Pay)'}
@@ -138,12 +138,12 @@ export default function AddLedgerEntrySheet({ dealerId }: { dealerId: string }) 
             </div>
           </div>
 
-          <div className="px-5 py-4 border-t border-[#c6c6cd]/20 flex-shrink-0">
+          <div className="px-5 py-4 border-t border-line/20 flex-shrink-0">
             <div className="max-w-lg mx-auto">
               <button
                 onClick={handleSave}
                 disabled={isPending || !canSave}
-                className="w-full h-12 bg-black text-white rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50"
+                className="w-full h-12 bg-brand text-white rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50"
               >
                 {isPending ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : `Add ${entryType === 'credit' ? 'Credit' : 'Debit'} Entry`}
               </button>

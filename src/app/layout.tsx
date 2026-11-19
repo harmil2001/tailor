@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins, Manrope } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/Toaster";
+import { BRAND } from "@/lib/brand";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -24,8 +25,8 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "My Brothers — Clothing & Tailoring",
-  description: "Order and customer management for My Brothers tailor shop.",
+  title: `${BRAND.name} — ${BRAND.tagline}`,
+  description: `Order and customer management for the ${BRAND.name} tailor shop.`,
 };
 
 export default function RootLayout({
@@ -38,7 +39,7 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} ${manrope.variable} light`}
     >
-      <body className="bg-[#f8f9ff] text-[#0b1c30] min-h-dvh">
+      <body className="bg-canvas text-ink min-h-dvh">
         {children}
         <Toaster />
       </body>

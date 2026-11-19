@@ -15,8 +15,8 @@ export type FabricFormState = {
   availableMeters: string
 }
 
-const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
-const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
+const inputCls = 'w-full h-12 px-4 bg-canvas border border-line rounded-xl text-[14px] text-ink focus:outline-none focus:border-brand transition-colors'
+const labelCls = 'block text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-2'
 
 export default function FabricFormFields({
   form,
@@ -58,8 +58,8 @@ export default function FabricFormFields({
               onClick={() => set('pattern', p)}
               className={`px-3 py-2 rounded-xl text-[12px] font-semibold border transition-colors ${
                 form.pattern === p
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white border-[#c6c6cd] text-[#45464d]'
+                  ? 'bg-brand text-white border-brand'
+                  : 'bg-white border-line text-ink-soft'
               }`}
             >
               {p}
@@ -77,7 +77,7 @@ export default function FabricFormFields({
           <label className={labelCls}>Sell Factor (×)</label>
           <input type="number" inputMode="decimal" step="0.1" value={form.sellingPriceFactor} onChange={e => set('sellingPriceFactor', e.target.value)} placeholder="1.0" className={inputCls} />
           {form.purchasePricePerMeter && form.sellingPriceFactor && (
-            <p className="text-[11px] text-[#76777d] mt-1">
+            <p className="text-[11px] text-ink-muted mt-1">
               Sell = ₹{(Number(form.purchasePricePerMeter) * Number(form.sellingPriceFactor)).toFixed(0)}/m
             </p>
           )}
@@ -96,10 +96,10 @@ export default function FabricFormFields({
             value={form.availableMeters}
             onChange={e => set('availableMeters', e.target.value)}
             placeholder="0"
-            className={`${inputCls} ${form.availableMeters && form.totalMeters && Number(form.availableMeters) > Number(form.totalMeters) ? 'border-[#ba1a1a] focus:border-[#ba1a1a]' : ''}`}
+            className={`${inputCls} ${form.availableMeters && form.totalMeters && Number(form.availableMeters) > Number(form.totalMeters) ? 'border-danger focus:border-danger' : ''}`}
           />
           {form.availableMeters && form.totalMeters && Number(form.availableMeters) > Number(form.totalMeters) && (
-            <p className="text-[11px] text-[#ba1a1a] mt-1">Cannot exceed total ({form.totalMeters} m)</p>
+            <p className="text-[11px] text-danger mt-1">Cannot exceed total ({form.totalMeters} m)</p>
           )}
         </div>
       </div>

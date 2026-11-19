@@ -67,10 +67,10 @@ export default async function RevenuePage({ searchParams }: Props) {
 
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-[22px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+        <h1 className="text-[22px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
           Revenue
         </h1>
-        <span className="text-[12px] font-semibold text-[#45464d]">{orderCount} orders</span>
+        <span className="text-[12px] font-semibold text-ink-soft">{orderCount} orders</span>
       </div>
 
       {/* Period selector */}
@@ -82,18 +82,18 @@ export default async function RevenuePage({ searchParams }: Props) {
 
       {orderCount === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-24">
-          <div className="w-16 h-16 rounded-full bg-[#e5eeff] flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-brand-tint flex items-center justify-center">
             <span className="text-[28px]">📊</span>
           </div>
-          <p className="text-[16px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+          <p className="text-[16px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
             No orders in this period
           </p>
-          <p className="text-[13px] text-[#45464d]">Try selecting a wider time range.</p>
+          <p className="text-[13px] text-ink-soft">Try selecting a wider time range.</p>
         </div>
       ) : (
         <>
           {/* Hero — Total Revenue */}
-          <div className="bg-gradient-to-br from-black to-[#1a1a1a] rounded-[24px] p-6">
+          <div className="bg-gradient-to-br from-brand to-brand-deep rounded-[24px] p-6">
             <p className="text-[11px] font-semibold tracking-widest text-white/50 uppercase mb-2">
               Total Revenue · {PERIOD_LABELS[activePeriod]}
             </p>
@@ -105,15 +105,15 @@ export default async function RevenuePage({ searchParams }: Props) {
 
           {/* Collected + Balance */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-[20px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
-              <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-1">Collected</p>
-              <p className="text-[20px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+            <div className="bg-white rounded-[20px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
+              <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-1">Collected</p>
+              <p className="text-[20px] font-bold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
                 {fmtFull(totalCollected)}
               </p>
             </div>
-            <div className="bg-white rounded-[20px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
-              <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-1">Balance Due</p>
-              <p className={`text-[20px] font-bold ${totalBalance > 0 ? 'text-[#ba1a1a]' : 'text-[#45464d]'}`}
+            <div className="bg-white rounded-[20px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
+              <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-1">Balance Due</p>
+              <p className={`text-[20px] font-bold ${totalBalance > 0 ? 'text-danger' : 'text-ink-soft'}`}
                  style={{ fontFamily: 'var(--font-manrope)' }}>
                 {totalBalance > 0 ? fmtFull(totalBalance) : '—'}
               </p>
@@ -121,33 +121,33 @@ export default async function RevenuePage({ searchParams }: Props) {
           </div>
 
           {/* Collection rate */}
-          <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5">
+          <div className="bg-white rounded-[24px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5">
             <div className="flex justify-between items-center mb-3">
-              <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase">Collection Rate</p>
-              <p className="text-[22px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+              <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase">Collection Rate</p>
+              <p className="text-[22px] font-bold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
                 {collectionRate}%
               </p>
             </div>
-            <div className="h-2.5 bg-[#e5eeff] rounded-full overflow-hidden">
+            <div className="h-2.5 bg-brand-tint rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#775a19] transition-all"
+                className="h-full rounded-full bg-accent transition-all"
                 style={{ width: `${collectionRate}%` }}
               />
             </div>
-            <p className="text-[12px] text-[#76777d] mt-2">
+            <p className="text-[12px] text-ink-muted mt-2">
               {fmtFull(totalCollected)} of {fmtFull(totalRevenue)} received
             </p>
           </div>
 
           {/* Quick metrics */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-[20px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
-              <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-1">Avg Order</p>
-              <p className="text-[20px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+            <div className="bg-white rounded-[20px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-4">
+              <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-1">Avg Order</p>
+              <p className="text-[20px] font-bold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
                 {fmtFull(avgOrderValue)}
               </p>
             </div>
-            <div className="bg-[#775a19] rounded-[20px] p-4">
+            <div className="bg-accent rounded-[20px] p-4">
               <p className="text-[11px] font-semibold tracking-widest text-white/60 uppercase mb-1">Orders</p>
               <p className="text-[20px] font-bold text-white" style={{ fontFamily: 'var(--font-manrope)' }}>
                 {orderCount}
@@ -158,25 +158,25 @@ export default async function RevenuePage({ searchParams }: Props) {
 
           {/* Top customers */}
           {topCustomers.length > 0 && (
-            <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5">
-              <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-4">
+            <div className="bg-white rounded-[24px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5">
+              <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-4">
                 Top Customers
               </p>
-              <div className="flex flex-col divide-y divide-[#c6c6cd]/30">
+              <div className="flex flex-col divide-y divide-line/30">
                 {topCustomers.map((c, i) => {
                   const rev = parseFloat(c.revenue ?? '0')
                   return (
                     <div key={c.name} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/60 flex items-center justify-center text-[10px] font-bold text-[#45464d]">
+                        <span className="w-6 h-6 rounded-full bg-canvas border border-line/60 flex items-center justify-center text-[10px] font-bold text-ink-soft">
                           {i + 1}
                         </span>
                         <div>
-                          <p className="text-[14px] font-medium text-[#0b1c30]">{c.name}</p>
-                          <p className="text-[11px] text-[#76777d]">{c.orderCount} {Number(c.orderCount) === 1 ? 'order' : 'orders'}</p>
+                          <p className="text-[14px] font-medium text-ink">{c.name}</p>
+                          <p className="text-[11px] text-ink-muted">{c.orderCount} {Number(c.orderCount) === 1 ? 'order' : 'orders'}</p>
                         </div>
                       </div>
-                      <span className="text-[15px] font-bold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+                      <span className="text-[15px] font-bold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
                         {fmtFull(rev)}
                       </span>
                     </div>

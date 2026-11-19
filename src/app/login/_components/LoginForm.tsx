@@ -49,8 +49,8 @@ export default function LoginForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4 w-full">
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12px] font-semibold tracking-widest text-[#45464d] uppercase">
-          Email <span className="text-[#ba1a1a]">*</span>
+        <label className="text-[12px] font-semibold tracking-widest text-ink-soft uppercase">
+          Email <span className="text-danger">*</span>
         </label>
         <input
           ref={emailRef}
@@ -63,20 +63,20 @@ export default function LoginForm() {
           }}
           autoComplete="email"
           placeholder="Enter your email"
-          className={`h-12 px-4 rounded-xl border bg-white text-[14px] text-[#0b1c30] focus:outline-none transition-colors ${
+          className={`h-12 px-4 rounded-xl border bg-white text-[14px] text-ink focus:outline-none transition-colors ${
             fieldErrors.email
-              ? "border-[#ba1a1a]"
-              : "border-[#c6c6cd] focus:border-black"
+              ? "border-danger"
+              : "border-line focus:border-brand"
           }`}
         />
         {fieldErrors.email && (
-          <p className="text-[12px] text-[#ba1a1a]">{fieldErrors.email}</p>
+          <p className="text-[12px] text-danger">{fieldErrors.email}</p>
         )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12px] font-semibold tracking-widest text-[#45464d] uppercase">
-          Password <span className="text-[#ba1a1a]">*</span>
+        <label className="text-[12px] font-semibold tracking-widest text-ink-soft uppercase">
+          Password <span className="text-danger">*</span>
         </label>
         <div className="relative">
           <input
@@ -90,30 +90,30 @@ export default function LoginForm() {
             }}
             autoComplete="current-password"
             placeholder="Enter your password"
-            className={`h-12 w-full px-4 pr-12 rounded-xl border bg-white text-[14px] text-[#0b1c30] focus:outline-none transition-colors ${
+            className={`h-12 w-full px-4 pr-12 rounded-xl border bg-white text-[14px] text-ink focus:outline-none transition-colors ${
               fieldErrors.password
-                ? "border-[#ba1a1a]"
-                : "border-[#c6c6cd] focus:border-black"
+                ? "border-danger"
+                : "border-line focus:border-brand"
             }`}
           />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-[#76777d] hover:text-[#0b1c30] transition-colors"
+            className="absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
         {fieldErrors.password && (
-          <p className="text-[12px] text-[#ba1a1a]">{fieldErrors.password}</p>
+          <p className="text-[12px] text-danger">{fieldErrors.password}</p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={isPending || !email.trim() || !password}
-        className="h-12 w-full rounded-xl bg-black text-white text-[14px] font-semibold tracking-wide transition-opacity disabled:opacity-50 active:scale-95"
+        className="h-12 w-full rounded-xl bg-brand text-white text-[14px] font-semibold tracking-wide transition-opacity disabled:opacity-50 active:scale-95"
       >
         {isPending ? "Signing in..." : "Sign In"}
       </button>

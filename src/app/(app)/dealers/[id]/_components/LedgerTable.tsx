@@ -10,25 +10,25 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })
 }
 
-const th = 'text-[10px] font-semibold tracking-widest uppercase text-[#45464d] px-3 py-2.5 text-left whitespace-nowrap'
-const td = 'px-3 py-2.5 text-[12px] text-[#0b1c30] whitespace-nowrap'
+const th = 'text-[10px] font-semibold tracking-widest uppercase text-ink-soft px-3 py-2.5 text-left whitespace-nowrap'
+const td = 'px-3 py-2.5 text-[12px] text-ink whitespace-nowrap'
 
 export default function LedgerTable({ entries }: { entries: EntryWithBalance[] }) {
   if (entries.length === 0) {
     return (
-      <div className="bg-white rounded-[20px] border border-[#c6c6cd]/30 px-5 py-12 flex flex-col items-center gap-2">
-        <p className="text-[15px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>No entries yet</p>
-        <p className="text-[13px] text-[#76777d]">Tap + to add your first credit or debit entry.</p>
+      <div className="bg-white rounded-[20px] border border-line/30 px-5 py-12 flex flex-col items-center gap-2">
+        <p className="text-[15px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>No entries yet</p>
+        <p className="text-[13px] text-ink-muted">Tap + to add your first credit or debit entry.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-[20px] border border-[#c6c6cd]/30 shadow-[0px_2px_8px_rgba(15,23,42,0.06)] overflow-hidden">
+    <div className="bg-white rounded-[20px] border border-line/30 shadow-[0px_2px_8px_rgba(15,23,42,0.06)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse" style={{ minWidth: 620 }}>
           <thead>
-            <tr className="bg-[#f8f9ff] border-b border-[#c6c6cd]/40">
+            <tr className="bg-canvas border-b border-line/40">
               <th className={th}>Date</th>
               <th className={`${th} max-w-[140px]`}>Particulars</th>
               <th className={th}>V.Type</th>
@@ -47,26 +47,26 @@ export default function LedgerTable({ entries }: { entries: EntryWithBalance[] }
               const bal = entry.runningBalance
 
               return (
-                <tr key={entry.id} className={`border-b border-[#c6c6cd]/20 ${i % 2 === 1 ? 'bg-[#f8f9ff]/50' : ''}`}>
+                <tr key={entry.id} className={`border-b border-line/20 ${i % 2 === 1 ? 'bg-canvas/50' : ''}`}>
                   <td className={td}>{fmtDate(entry.billDate)}</td>
                   <td className={`${td} max-w-[140px]`}>
                     <span className="block truncate max-w-[130px]" title={entry.particulars}>{entry.particulars}</span>
-                    <span className="text-[10px] text-[#76777d]">{entry.voucherNo}</span>
+                    <span className="text-[10px] text-ink-muted">{entry.voucherNo}</span>
                   </td>
                   <td className={td}>
-                    <span className="bg-[#f8f9ff] border border-[#c6c6cd]/40 rounded-md px-1.5 py-0.5 text-[11px]">
+                    <span className="bg-canvas border border-line/40 rounded-md px-1.5 py-0.5 text-[11px]">
                       {entry.voucherType}
                     </span>
                   </td>
-                  <td className={`${td} text-[#76777d]`}>{entry.voucherNo}</td>
+                  <td className={`${td} text-ink-muted`}>{entry.voucherNo}</td>
                   <td className={`${td} text-right font-semibold`}>
-                    {!isCredit ? <span className="text-[#1a5c34]">₹{fmt(amount)}</span> : <span className="text-[#c6c6cd]">—</span>}
+                    {!isCredit ? <span className="text-success">₹{fmt(amount)}</span> : <span className="text-line">—</span>}
                   </td>
                   <td className={`${td} text-right font-semibold`}>
-                    {isCredit ? <span className="text-[#ba1a1a]">₹{fmt(amount)}</span> : <span className="text-[#c6c6cd]">—</span>}
+                    {isCredit ? <span className="text-danger">₹{fmt(amount)}</span> : <span className="text-line">—</span>}
                   </td>
                   <td className={`${td} text-right font-bold`}>
-                    <span className={bal > 0 ? 'text-[#ba1a1a]' : bal < 0 ? 'text-[#1a5c34]' : 'text-[#76777d]'}>
+                    <span className={bal > 0 ? 'text-danger' : bal < 0 ? 'text-success' : 'text-ink-muted'}>
                       ₹{fmt(bal)}
                     </span>
                   </td>
@@ -75,18 +75,18 @@ export default function LedgerTable({ entries }: { entries: EntryWithBalance[] }
             })}
           </tbody>
           <tfoot>
-            <tr className="bg-[#f8f9ff] border-t-2 border-[#c6c6cd]/60">
-              <td colSpan={4} className={`${td} font-bold text-[#0b1c30]`}>Closing Balance</td>
-              <td className={`${td} text-right font-bold text-[#1a5c34]`}>
+            <tr className="bg-canvas border-t-2 border-line/60">
+              <td colSpan={4} className={`${td} font-bold text-ink`}>Closing Balance</td>
+              <td className={`${td} text-right font-bold text-success`}>
                 ₹{fmt(entries.reduce((s, e) => s + (e.debitAmount ? parseFloat(e.debitAmount) : 0), 0))}
               </td>
-              <td className={`${td} text-right font-bold text-[#ba1a1a]`}>
+              <td className={`${td} text-right font-bold text-danger`}>
                 ₹{fmt(entries.reduce((s, e) => s + (e.creditAmount ? parseFloat(e.creditAmount) : 0), 0))}
               </td>
               <td className={`${td} text-right font-bold`}>
                 {(() => {
                   const fin = entries[entries.length - 1].runningBalance
-                  return <span className={fin > 0 ? 'text-[#ba1a1a]' : fin < 0 ? 'text-[#1a5c34]' : 'text-[#76777d]'}>₹{fmt(fin)}</span>
+                  return <span className={fin > 0 ? 'text-danger' : fin < 0 ? 'text-success' : 'text-ink-muted'}>₹{fmt(fin)}</span>
                 })()}
               </td>
             </tr>

@@ -17,7 +17,7 @@ export default async function AppLayout({
         name={session.user.name ?? "Staff"}
         email={session.user.email ?? ""}
       />
-      <main className="pt-14 pb-18 px-4 bg-[#f8f9ff] min-h-screen">
+      <main className="pt-14 pb-18 px-4 bg-canvas min-h-screen">
         {children}
       </main>
       <BottomNav />

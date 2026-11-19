@@ -7,6 +7,7 @@ import { db } from '@/db'
 import { orders, fabrics } from '@/db/schema'
 import type { ClothProvidedBy, OrderItemFabric } from '@/db/schema'
 import { syncLowStockAlert } from '../inventory/alertActions'
+import { FEATURES } from '@/lib/features'
 
 type OrderItem = { name: string; clothProvidedBy: ClothProvidedBy; fabric?: OrderItemFabric }
 
@@ -70,6 +71,11 @@ export async function createOrder(data: {
 
     const session = await auth()
     const userId = session?.user?.id ?? null
+
+    // While the Stock module is off, orders carry no fabric and stock is never changed
+    if (!FEATURES.stock) data = { ...data, items: data.items.map(i => ({ ...i, fabric: undefined })) }
+    // While the cloth choice is off, new orders are always "Customer" cloth
+    if (!FEATURES.clothChoice) data = { ...data, items: data.items.map(i => ({ ...i, clothProvidedBy: 'Customer' as const, fabric: undefined })) }
 
     // Validate fabric availability before touching anything
     const tailorItems = data.items.filter(i => i.name.trim() && i.clothProvidedBy === 'Tailor' && i.fabric)

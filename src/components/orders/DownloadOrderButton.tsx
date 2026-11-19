@@ -19,9 +19,9 @@ export default function DownloadOrderButton({ order }: { order: OrderPDFData }) 
       onClick={e => { e.preventDefault(); handleDownload() }}
       disabled={loading}
       aria-label="Download order PDF"
-      className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#c6c6cd]/60 shadow-sm active:scale-95 transition-transform disabled:opacity-50"
+      className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-line/60 shadow-sm active:scale-95 transition-transform disabled:opacity-50"
     >
-      <Download size={15} className="text-[#45464d]" />
+      <Download size={15} className="text-ink-soft" />
     </button>
   )
 }

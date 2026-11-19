@@ -8,6 +8,7 @@ import CreateCustomerSheet from '@/components/customers/CreateCustomerSheet'
 import CreateOrderSheet from '@/components/orders/CreateOrderSheet'
 import LowStockSection from '@/components/inventory/LowStockSection'
 import { getDateFrom } from './orders/constants'
+import { FEATURES } from '@/lib/features'
 
 async function getDashboardData() {
   const monthFrom = getDateFrom('current')!
@@ -27,16 +28,24 @@ async function getDashboardData() {
     }).from(orders).where(gte(orders.orderDate, monthFrom)),
     db.select({ id: customers.id, name: customers.name, phone: customers.phone })
       .from(customers).orderBy(asc(customers.name)),
-    db.select().from(fabrics).orderBy(asc(fabrics.brand)),
-    db.query.lowStockAlerts.findMany({
-      with: { fabric: true },
-      where: isNull(lowStockAlerts.acknowledgedAt),
-    }),
-    db.select({
-      totalDealers: count(dealers.id),
-      totalCredit:  sql<string>`COALESCE(SUM(${dealerLedgerEntries.creditAmount}), 0)`,
-      totalDebit:   sql<string>`COALESCE(SUM(${dealerLedgerEntries.debitAmount}), 0)`,
-    }).from(dealers).leftJoin(dealerLedgerEntries, eq(dealerLedgerEntries.dealerId, dealers.id)),
+    // Both skipped while the Stock module is switched off (see src/lib/features.ts)
+    FEATURES.stock
+      ? db.select().from(fabrics).orderBy(asc(fabrics.brand))
+      : Promise.resolve([]),
+    FEATURES.stock
+      ? db.query.lowStockAlerts.findMany({
+          with: { fabric: true },
+          where: isNull(lowStockAlerts.acknowledgedAt),
+        })
+      : Promise.resolve([]),
+    // Skipped while the Dealers module is switched off (see src/lib/features.ts)
+    FEATURES.dealers
+      ? db.select({
+          totalDealers: count(dealers.id),
+          totalCredit:  sql<string>`COALESCE(SUM(${dealerLedgerEntries.creditAmount}), 0)`,
+          totalDebit:   sql<string>`COALESCE(SUM(${dealerLedgerEntries.debitAmount}), 0)`,
+        }).from(dealers).leftJoin(dealerLedgerEntries, eq(dealerLedgerEntries.dealerId, dealers.id))
+      : Promise.resolve([]),
   ])
 
   return {
@@ -71,7 +80,7 @@ export default async function DashboardPage() {
     <div className="py-6 flex flex-col gap-6 max-w-lg mx-auto">
 
       {/* Low stock section */}
-      <LowStockSection alerts={lowStockAlertsData} />
+      {FEATURES.stock && <LowStockSection alerts={lowStockAlertsData} />}
 
       {/* Quick Actions */}
       <section className="grid grid-cols-2 gap-3">
@@ -84,53 +93,53 @@ export default async function DashboardPage() {
 
         {/* Customers card */}
         <Link href="/customers">
-          <div className="bg-[#f4f7ff] rounded-[20px] border border-[#dce8ff]/60 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 flex items-center justify-between active:scale-[0.98] transition-all">
+          <div className="bg-brand-wash rounded-[20px] border border-brand-tint/60 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 flex items-center justify-between active:scale-[0.98] transition-all">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#dce8ff] flex items-center justify-center flex-shrink-0">
-                <Users size={22} className="text-[#1a3a8f]" />
+              <div className="w-12 h-12 rounded-2xl bg-brand-tint flex items-center justify-center flex-shrink-0">
+                <Users size={22} className="text-info-ink" />
               </div>
               <div>
-                <p className="text-[12px] font-medium text-[#4a5568]">Total Customers</p>
-                <p className="text-[32px] font-bold text-[#0b1c30] leading-tight" style={{ fontFamily: 'Manrope' }}>
+                <p className="text-[12px] font-medium text-ink-soft">Total Customers</p>
+                <p className="text-[32px] font-bold text-ink leading-tight" style={{ fontFamily: 'Manrope' }}>
                   {totalCustomers}
                 </p>
               </div>
             </div>
-            <ChevronRight size={18} className="text-[#1a3a8f]/30" />
+            <ChevronRight size={18} className="text-info-ink/30" />
           </div>
         </Link>
 
         {/* Orders card */}
         <Link href="/orders">
-          <div className="bg-white rounded-[20px] border border-[#c6c6cd]/20 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 active:scale-[0.98] transition-all">
+          <div className="bg-white rounded-[20px] border border-line/20 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 active:scale-[0.98] transition-all">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#fdefc8] flex items-center justify-center flex-shrink-0">
-                  <ShoppingBag size={22} className="text-[#775a19]" />
+                <div className="w-12 h-12 rounded-2xl bg-accent-tint flex items-center justify-center flex-shrink-0">
+                  <ShoppingBag size={22} className="text-accent" />
                 </div>
                 <div>
-                  <p className="text-[12px] font-medium text-[#4a5568]">Orders This Month</p>
-                  <p className="text-[32px] font-bold text-[#0b1c30] leading-tight" style={{ fontFamily: 'Manrope' }}>
+                  <p className="text-[12px] font-medium text-ink-soft">Orders This Month</p>
+                  <p className="text-[32px] font-bold text-ink leading-tight" style={{ fontFamily: 'Manrope' }}>
                     {monthOrders}
                   </p>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-[#775a19]/30" />
+              <ChevronRight size={18} className="text-accent/30" />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-[#fff8e6] rounded-[14px] px-3 py-2.5 flex items-center gap-2">
-                <Clock size={14} className="text-[#785a1a] flex-shrink-0" />
+              <div className="bg-accent-wash rounded-[14px] px-3 py-2.5 flex items-center gap-2">
+                <Clock size={14} className="text-accent-ink flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] font-medium text-[#785a1a]/70">In Progress</p>
-                  <p className="text-[16px] font-bold text-[#0b1c30]">{activeOrders}</p>
+                  <p className="text-[10px] font-medium text-accent-ink/70">In Progress</p>
+                  <p className="text-[16px] font-bold text-ink">{activeOrders}</p>
                 </div>
               </div>
-              <div className="bg-[#edfaf3] rounded-[14px] px-3 py-2.5 flex items-center gap-2">
-                <CheckCircle size={14} className="text-[#1a5c34] flex-shrink-0" />
+              <div className="bg-success-wash rounded-[14px] px-3 py-2.5 flex items-center gap-2">
+                <CheckCircle size={14} className="text-success flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] font-medium text-[#1a5c34]/70">Ready</p>
-                  <p className="text-[16px] font-bold text-[#0b1c30]">{readyOrders}</p>
+                  <p className="text-[10px] font-medium text-success/70">Ready</p>
+                  <p className="text-[16px] font-bold text-ink">{readyOrders}</p>
                 </div>
               </div>
             </div>
@@ -139,7 +148,7 @@ export default async function DashboardPage() {
 
         {/* Revenue card */}
         <Link href="/revenue?period=current">
-          <div className="bg-gradient-to-br from-[#0b1c30] to-[#1a2f48] rounded-[20px] p-5 active:scale-[0.98] transition-all">
+          <div className="bg-gradient-to-br from-brand to-brand-deep rounded-[20px] p-5 active:scale-[0.98] transition-all">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-semibold tracking-widest text-white/60 uppercase">
                 Revenue · This Month
@@ -172,41 +181,43 @@ export default async function DashboardPage() {
         </Link>
 
         {/* Dealers card */}
+        {FEATURES.dealers && (
         <Link href="/dealers">
-          <div className="bg-[#fdf6ec] rounded-[20px] border border-[#e8d5b0]/60 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 active:scale-[0.98] transition-all">
+          <div className="bg-accent-wash rounded-[20px] border border-accent-line/60 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] p-5 active:scale-[0.98] transition-all">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#f5e6c8] flex items-center justify-center flex-shrink-0">
-                  <Store size={22} className="text-[#775a19]" />
+                <div className="w-12 h-12 rounded-2xl bg-accent-tint flex items-center justify-center flex-shrink-0">
+                  <Store size={22} className="text-accent" />
                 </div>
                 <div>
-                  <p className="text-[12px] font-medium text-[#4a5568]">Dealer Accounts</p>
-                  <p className="text-[32px] font-bold text-[#0b1c30] leading-tight" style={{ fontFamily: 'Manrope' }}>
+                  <p className="text-[12px] font-medium text-ink-soft">Dealer Accounts</p>
+                  <p className="text-[32px] font-bold text-ink leading-tight" style={{ fontFamily: 'Manrope' }}>
                     {totalDealers}
                   </p>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-[#775a19]/30" />
+              <ChevronRight size={18} className="text-accent/30" />
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-[#ffdad6]/50 rounded-[14px] px-3 py-2.5">
-                <p className="text-[10px] font-medium text-[#93000a]/70">Total Credit</p>
-                <p className="text-[14px] font-bold text-[#93000a]">{fmtINR(dealerCredit)}</p>
+              <div className="bg-danger-tint/50 rounded-[14px] px-3 py-2.5">
+                <p className="text-[10px] font-medium text-danger-ink/70">Total Credit</p>
+                <p className="text-[14px] font-bold text-danger-ink">{fmtINR(dealerCredit)}</p>
               </div>
-              <div className="bg-[#d6f5e3]/60 rounded-[14px] px-3 py-2.5">
-                <p className="text-[10px] font-medium text-[#1a5c34]/70">Total Paid</p>
-                <p className="text-[14px] font-bold text-[#1a5c34]">{fmtINR(dealerDebit)}</p>
+              <div className="bg-success-tint/60 rounded-[14px] px-3 py-2.5">
+                <p className="text-[10px] font-medium text-success/70">Total Paid</p>
+                <p className="text-[14px] font-bold text-success">{fmtINR(dealerDebit)}</p>
               </div>
-              <div className={`rounded-[14px] px-3 py-2.5 ${dealerOutstanding > 0 ? 'bg-[#fff3e0]' : 'bg-[#f8f9ff]'}`}>
-                <p className="text-[10px] font-medium text-[#45464d]/70">Outstanding</p>
-                <p className={`text-[14px] font-bold ${dealerOutstanding > 0 ? 'text-[#775a19]' : 'text-[#45464d]'}`}>
+              <div className={`rounded-[14px] px-3 py-2.5 ${dealerOutstanding > 0 ? 'bg-accent-wash' : 'bg-canvas'}`}>
+                <p className="text-[10px] font-medium text-ink-soft/70">Outstanding</p>
+                <p className={`text-[14px] font-bold ${dealerOutstanding > 0 ? 'text-accent' : 'text-ink-soft'}`}>
                   {dealerOutstanding > 0 ? fmtINR(dealerOutstanding) : '—'}
                 </p>
               </div>
             </div>
           </div>
         </Link>
+        )}
 
       </section>
     </div>

@@ -15,7 +15,7 @@ export default function CopyCodeButton({ code }: { code: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-white text-[#0b1c30] text-[13px] font-semibold active:scale-95 transition-all shrink-0"
+      className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-white text-ink text-[13px] font-semibold active:scale-95 transition-all shrink-0"
     >
       {copied ? <Check size={14} /> : <Copy size={14} />}
       {copied ? 'Copied!' : 'Copy Code'}

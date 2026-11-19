@@ -59,7 +59,7 @@ export default function FabricQRCode({
 
   if (!origin) return (
     <div className="flex flex-col items-center gap-4">
-      <div className="w-[212px] h-[212px] bg-[#f4f4f4] rounded-[20px] animate-pulse" />
+      <div className="w-[212px] h-[212px] bg-surface-muted rounded-[20px] animate-pulse" />
     </div>
   )
 
@@ -67,7 +67,7 @@ export default function FabricQRCode({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="bg-white p-4 rounded-[20px] border border-[#c6c6cd]/40 shadow-sm">
+      <div className="bg-white p-4 rounded-[20px] border border-line/40 shadow-sm">
         <QRCodeCanvas
           ref={canvasRef}
           value={url}
@@ -76,12 +76,12 @@ export default function FabricQRCode({
           includeMargin={false}
         />
       </div>
-      <p className="text-[11px] text-[#76777d] text-center max-w-[220px]">
+      <p className="text-[11px] text-ink-muted text-center max-w-[220px]">
         Scan to open this fabric&apos;s page instantly.
       </p>
       <button
         onClick={handleDownload}
-        className="flex items-center gap-2 h-11 px-5 bg-black text-white rounded-xl text-[13px] font-semibold active:scale-95 transition-transform"
+        className="flex items-center gap-2 h-11 px-5 bg-brand text-white rounded-xl text-[13px] font-semibold active:scale-95 transition-transform"
       >
         <Download size={15} /> Download QR + Code
       </button>

@@ -8,7 +8,7 @@ export default function BackButton() {
   return (
     <button
       onClick={() => router.back()}
-      className="flex items-center gap-2 text-[#45464d] active:scale-95 transition-transform"
+      className="flex items-center gap-2 text-ink-soft active:scale-95 transition-transform"
     >
       <ArrowLeft size={20} />
       <span className="text-[14px] font-medium">Back</span>

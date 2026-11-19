@@ -19,15 +19,15 @@ const STATUS_INDEX: Record<OrderStatus, number> = {
 export default function OrderTimeline({ status }: { status: OrderStatus }) {
   if (status === 'Cancelled') {
     return (
-      <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-5">
-        <p className="text-[12px] font-semibold tracking-widest text-[#45464d] uppercase mb-4">Order Progress</p>
+      <div className="bg-white rounded-[24px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-5">
+        <p className="text-[12px] font-semibold tracking-widest text-ink-soft uppercase mb-4">Order Progress</p>
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-full bg-[#e5e5ea] flex items-center justify-center flex-shrink-0">
-            <X size={14} strokeWidth={2.5} className="text-[#45464d]" />
+          <div className="w-8 h-8 rounded-full bg-neutral-tint flex items-center justify-center flex-shrink-0">
+            <X size={14} strokeWidth={2.5} className="text-ink-soft" />
           </div>
           <div>
-            <p className="text-[14px] font-semibold text-[#45464d]">Order Cancelled</p>
-            <p className="text-[12px] text-[#76777d] mt-0.5">This order has been cancelled</p>
+            <p className="text-[14px] font-semibold text-ink-soft">Order Cancelled</p>
+            <p className="text-[12px] text-ink-muted mt-0.5">This order has been cancelled</p>
           </div>
         </div>
       </div>
@@ -38,8 +38,8 @@ export default function OrderTimeline({ status }: { status: OrderStatus }) {
   const allDone     = status === 'Delivered'
 
   return (
-    <div className="bg-white rounded-[24px] border border-[#c6c6cd]/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-5">
-      <p className="text-[12px] font-semibold tracking-widest text-[#45464d] uppercase mb-5">
+    <div className="bg-white rounded-[24px] border border-line/40 shadow-[0px_4px_12px_rgba(15,23,42,0.05)] px-5 py-5">
+      <p className="text-[12px] font-semibold tracking-widest text-ink-soft uppercase mb-5">
         Order Progress
       </p>
 
@@ -55,28 +55,28 @@ export default function OrderTimeline({ status }: { status: OrderStatus }) {
               <div className="flex flex-col items-center">
                 {/* Circle */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                  isDone   ? 'bg-black'           :
-                  isActive ? 'bg-[#775a19]'       :
-                             'bg-[#f8f9ff] border-2 border-[#c6c6cd]'
+                  isDone   ? 'bg-brand'           :
+                  isActive ? 'bg-accent'       :
+                             'bg-canvas border-2 border-line'
                 }`}>
                   {isDone   && <Check size={14} strokeWidth={2.5} className="text-white" />}
                   {isActive && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                 </div>
                 {/* Connector line */}
                 {i < STEPS.length - 1 && (
-                  <div className={`w-0.5 flex-1 my-1 min-h-[28px] ${isDone ? 'bg-black' : 'bg-[#c6c6cd]/60'}`} />
+                  <div className={`w-0.5 flex-1 my-1 min-h-[28px] ${isDone ? 'bg-brand' : 'bg-line/60'}`} />
                 )}
               </div>
 
               {/* Label */}
               <div className={`pb-5 pt-1 ${i === STEPS.length - 1 ? 'pb-0' : ''}`}>
                 <p className={`text-[14px] font-semibold leading-tight ${
-                  isPending ? 'text-[#c6c6cd]' : 'text-[#0b1c30]'
+                  isPending ? 'text-line' : 'text-ink'
                 }`}>
                   {step.label}
                 </p>
                 <p className={`text-[12px] mt-0.5 ${
-                  isPending ? 'text-[#c6c6cd]' : 'text-[#76777d]'
+                  isPending ? 'text-line' : 'text-ink-muted'
                 }`}>
                   {step.sub}
                 </p>

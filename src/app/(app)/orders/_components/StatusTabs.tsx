@@ -26,8 +26,8 @@ export default function StatusTabs() {
             onClick={() => select(tab)}
             className={`flex-none px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide whitespace-nowrap transition-all active:scale-95 ${
               isActive
-                ? 'bg-black text-white shadow-md'
-                : 'bg-white text-[#45464d] border border-[#c6c6cd]'
+                ? 'bg-brand text-white shadow-md'
+                : 'bg-white text-ink-soft border border-line'
             }`}
           >
             {tab}

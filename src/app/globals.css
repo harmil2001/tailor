@@ -5,13 +5,78 @@
   --font-display: var(--font-manrope);
 }
 
+/*
+ * Dhaaga theme — "soft slate".
+ * Every colour in the app comes from these tokens (bg-brand, text-ink, border-line …).
+ * To recolour the app, change the values here; no component needs to be touched.
+ * The PDF invoice keeps its own copy of the palette in src/lib/generateOrderPDF.ts.
+ */
+@theme static {
+  /* Surfaces */
+  --color-canvas: #f6f6f4;          /* page background */
+  --color-surface-muted: #efeeea;   /* quiet fills, progress tracks */
+  --color-surface-sunken: #e4e3de;  /* chips sitting on a muted fill */
+  --color-line: #dddcd6;            /* borders and dividers */
+
+  /* Text */
+  --color-ink: #2f3850;             /* primary text */
+  --color-ink-soft: #666b77;        /* secondary text */
+  --color-ink-muted: #7b7f89;       /* icons, hints, placeholders */
+
+  /* Brand (slate) */
+  --color-brand: #3f4a63;           /* buttons, active states, dark panels */
+  --color-brand-deep: #343e55;      /* gradient end on dark panels */
+  --color-brand-wash: #f1f3f7;
+  --color-brand-tint: #e6e9f0;
+  --color-brand-tint-strong: #d3d9e6;
+
+  /* Accent (muted sand-gold) */
+  --color-accent: #8c7242;
+  --color-accent-ink: #6e5a30;
+  --color-accent-soft: #c9ae7c;
+  --color-accent-line: #e2d6bd;
+  --color-accent-wash: #f8f4ea;
+  --color-accent-tint: #f1e9d8;
+  --color-accent-tint-strong: #e6d8b8;
+
+  /* Danger */
+  --color-danger: #a8443d;
+  --color-danger-ink: #8a3a34;
+  --color-danger-soft: #e0a39d;
+  --color-danger-wash: #faf0ee;
+  --color-danger-tint: #f4e1de;
+  --color-danger-tint-strong: #e9c8c3;
+
+  /* Success */
+  --color-success: #3f6b54;
+  --color-success-wash: #f0f6f2;
+  --color-success-tint: #e1ede5;
+  --color-success-tint-strong: #c9ddd0;
+
+  /* Info (Ready badge, blue fabric chips) */
+  --color-info-ink: #3a4a78;
+  --color-info-tint: #dfe5f0;
+  --color-info-tint-strong: #cbd4e6;
+
+  /* Neutral (Cancelled badge) */
+  --color-neutral-tint: #e9e8e4;
+
+  /* Fabric pattern chips */
+  --color-plum-ink: #5e4a72;
+  --color-plum-tint: #ece6f0;
+  --color-plum-tint-strong: #dcd2e4;
+  --color-rose-ink: #7e4459;
+  --color-rose-tint: #f2e4e9;
+  --color-rose-tint-strong: #e6cfd8;
+}
+
 :root {
   color-scheme: light only;
 }
 
 body {
-  background: #f8f9ff;
-  color: #0b1c30;
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-poppins), sans-serif;
   -webkit-tap-highlight-color: transparent;
   min-height: 100dvh;

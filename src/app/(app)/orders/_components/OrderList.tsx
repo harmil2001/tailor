@@ -57,13 +57,13 @@ export default function OrderList({ initialOrders, filters }: Props) {
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-6">
           {loading && (
-            <div className="w-6 h-6 border-2 border-[#775a19] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           )}
         </div>
       )}
 
       {!hasMore && list.length > PAGE_SIZE && (
-        <p className="text-center text-[12px] text-[#76777d] py-2">All orders loaded</p>
+        <p className="text-center text-[12px] text-ink-muted py-2">All orders loaded</p>
       )}
     </div>
   )

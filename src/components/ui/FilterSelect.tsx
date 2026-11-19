@@ -60,8 +60,8 @@ export default function FilterSelect({ param, options, defaultLabel, activeColor
   }, [open])
 
   const activeCls = activeColor === 'gold'
-    ? 'bg-[#775a19] text-white border-transparent'
-    : 'bg-black text-white border-transparent'
+    ? 'bg-accent text-white border-transparent'
+    : 'bg-brand text-white border-transparent'
 
   const label = isActive ? activeOption?.label : defaultLabel
 
@@ -71,7 +71,7 @@ export default function FilterSelect({ param, options, defaultLabel, activeColor
         ref={triggerRef}
         onClick={openDropdown}
         className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap border transition-all active:scale-95 ${
-          isActive ? activeCls : 'bg-white text-[#45464d] border-[#c6c6cd]'
+          isActive ? activeCls : 'bg-white text-ink-soft border-line'
         }`}
       >
         {icon && <span className="flex-shrink-0">{icon}</span>}
@@ -87,30 +87,30 @@ export default function FilterSelect({ param, options, defaultLabel, activeColor
         <div
           ref={dropdownRef}
           style={{ position: 'fixed', top: dropPos.top, left: dropPos.left, minWidth: dropPos.minWidth }}
-          className="z-[200] bg-white rounded-2xl shadow-[0px_8px_32px_rgba(15,23,42,0.14)] border border-[#c6c6cd]/40 py-1.5 overflow-hidden"
+          className="z-[200] bg-white rounded-2xl shadow-[0px_8px_32px_rgba(15,23,42,0.14)] border border-line/40 py-1.5 overflow-hidden"
         >
           <button
             onClick={() => select('')}
-            className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] transition-colors hover:bg-[#f8f9ff] active:bg-[#e5eeff]"
+            className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] transition-colors hover:bg-canvas active:bg-brand-tint"
           >
-            <span className={!current ? 'font-semibold text-[#0b1c30]' : 'font-medium text-[#45464d]'}>
+            <span className={!current ? 'font-semibold text-ink' : 'font-medium text-ink-soft'}>
               {defaultLabel}
             </span>
-            {!current && <Check size={14} className="text-[#775a19]" />}
+            {!current && <Check size={14} className="text-accent" />}
           </button>
 
-          <div className="h-px bg-[#c6c6cd]/30 mx-3 my-1" />
+          <div className="h-px bg-line/30 mx-3 my-1" />
 
           {options.map(o => (
             <button
               key={o.value}
               onClick={() => select(o.value)}
-              className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] transition-colors hover:bg-[#f8f9ff] active:bg-[#e5eeff]"
+              className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] transition-colors hover:bg-canvas active:bg-brand-tint"
             >
-              <span className={current === o.value ? 'font-semibold text-[#0b1c30]' : 'font-medium text-[#45464d]'}>
+              <span className={current === o.value ? 'font-semibold text-ink' : 'font-medium text-ink-soft'}>
                 {o.label}
               </span>
-              {current === o.value && <Check size={14} className="text-[#775a19]" />}
+              {current === o.value && <Check size={14} className="text-accent" />}
             </button>
           ))}
         </div>

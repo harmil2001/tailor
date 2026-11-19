@@ -43,10 +43,10 @@ export default async function DealersPage({ searchParams }: Props) {
     <div className="py-6 flex flex-col gap-4 max-w-lg mx-auto">
 
       <div className="flex justify-between items-center">
-        <h1 className="text-[22px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+        <h1 className="text-[22px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
           Dealers
         </h1>
-        <span className="text-[12px] font-semibold text-[#45464d]">
+        <span className="text-[12px] font-semibold text-ink-soft">
           {total} {query ? 'found' : 'total'}
         </span>
       </div>
@@ -57,14 +57,14 @@ export default async function DealersPage({ searchParams }: Props) {
 
       {total === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-16">
-          <div className="w-16 h-16 rounded-full bg-[#f5f0e8] flex items-center justify-center">
-            <Store size={28} className="text-[#775a19]" />
+          <div className="w-16 h-16 rounded-full bg-accent-wash flex items-center justify-center">
+            <Store size={28} className="text-accent" />
           </div>
           <div className="text-center">
-            <p className="text-[16px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+            <p className="text-[16px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
               {query ? `No dealer named "${query}"` : 'No dealers yet'}
             </p>
-            <p className="text-[13px] text-[#45464d] mt-1">
+            <p className="text-[13px] text-ink-soft mt-1">
               {query ? 'Add them now to start tracking their account.' : 'Add your first dealer to track purchases & payments.'}
             </p>
           </div>

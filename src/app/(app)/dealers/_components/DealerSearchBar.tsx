@@ -26,20 +26,20 @@ export default function DealerSearchBar({ defaultValue }: { defaultValue: string
 
   return (
     <div className="relative">
-      <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#76777d]" />
+      <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
       <input
         type="text"
         value={value}
         onChange={e => setValue(e.target.value)}
         placeholder="Search dealer by name…"
-        className="w-full h-12 pl-11 pr-10 bg-white border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] placeholder:text-[#76777d] focus:outline-none focus:border-black transition-colors shadow-sm"
+        className="w-full h-12 pl-11 pr-10 bg-white border border-line rounded-xl text-[14px] text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand transition-colors shadow-sm"
       />
       {value && (
         <button
           onClick={() => setValue('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-[#c6c6cd]/40 active:scale-90 transition-transform"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-line/40 active:scale-90 transition-transform"
         >
-          <X size={12} className="text-[#45464d]" />
+          <X size={12} className="text-ink-soft" />
         </button>
       )}
     </div>

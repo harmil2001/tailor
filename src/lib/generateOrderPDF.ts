@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf'
+import { BRAND, BRAND_FULL } from '@/lib/brand'
 
 type Item = { name: string; clothProvidedBy: 'Customer' | 'Tailor' }
 
@@ -14,15 +15,16 @@ export interface OrderPDFData {
   notes?: string | null
 }
 
+// jsPDF needs literal colours, so this mirrors the theme tokens in globals.css.
 const C = {
-  black:   '#0b1c30',
-  gold:    '#c9a84c',
+  black:   '#3f4a63', // brand
+  gold:    '#c9ae7c', // accent-soft
   white:   '#ffffff',
-  gray:    '#6b7280',
-  light:   '#f0f0f2',
-  border:  '#d8d8d8',
-  red:     '#ba1a1a',
-  green:   '#1a5c34',
+  gray:    '#666b77', // ink-soft
+  light:   '#efeeea', // surface-muted
+  border:  '#dddcd6', // line
+  red:     '#a8443d', // danger
+  green:   '#3f6b54', // success
 }
 
 function rgb(hex: string): [number, number, number] {
@@ -44,13 +46,13 @@ function tag(doc: jsPDF, label: string, x: number, y: number) {
 
 function statusColors(s: string): [string, string] {
   const map: Record<string, [string, string]> = {
-    Pending:   ['#ffdad6', '#93000a'],
-    Stitching: ['#fed488', '#785a1a'],
-    Ready:     ['#d3e4fe', '#0040a0'],
-    Delivered: ['#d6f5e3', '#1a5c34'],
-    Cancelled: ['#e5e5ea', '#45464d'],
+    Pending:   ['#f4e1de', '#8a3a34'],
+    Stitching: ['#f1e9d8', '#6e5a30'],
+    Ready:     ['#dfe5f0', '#3a4a78'],
+    Delivered: ['#e1ede5', '#3f6b54'],
+    Cancelled: ['#e9e8e4', '#666b77'],
   }
-  return map[s] ?? ['#e5e5ea', '#45464d']
+  return map[s] ?? ['#e9e8e4', '#666b77']
 }
 
 export function generateOrderPDF(order: OrderPDFData) {
@@ -67,10 +69,10 @@ export function generateOrderPDF(order: OrderPDFData) {
   fc(doc, C.gold);  doc.rect(0, 0, W, 1.5, 'F')   // top gold line
 
   doc.setFont('helvetica', 'bold'); doc.setFontSize(17); tc(doc, C.gold)
-  doc.text('MY BROTHERS', W / 2, 14, { align: 'center' })
+  doc.text(BRAND.name.toUpperCase(), W / 2, 14, { align: 'center' })
 
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(doc, '#aaaaaa')
-  doc.text('Clothing & Tailoring', W / 2, 21.5, { align: 'center' })
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(doc, '#d3d9e6')
+  doc.text(BRAND.tagline, W / 2, 21.5, { align: 'center' })
 
   fc(doc, C.gold); doc.rect(0, 29, W, 1, 'F')      // bottom gold line
 
@@ -214,11 +216,11 @@ export function generateOrderPDF(order: OrderPDFData) {
   fc(doc, C.black); doc.rect(0, footY + 0.8, W, 13.2, 'F')
 
   doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(doc, C.gold)
-  doc.text('My Brothers · Clothing & Tailoring', W / 2, footY + 6.5, { align: 'center' })
+  doc.text(BRAND_FULL, W / 2, footY + 6.5, { align: 'center' })
 
-  doc.setFont('courier', 'normal'); doc.setFontSize(6); tc(doc, '#888888')
+  doc.setFont('courier', 'normal'); doc.setFontSize(6); tc(doc, '#d3d9e6')
   doc.text(`Order ID: ${order.id}`, W / 2, footY + 11.5, { align: 'center' })
 
   const safeName = order.customerName.replace(/\s+/g, '-')
-  doc.save(`MyBrothers-${safeName}-${order.id.slice(0, 8)}.pdf`)
+  doc.save(`${BRAND.name}-${safeName}-${order.id.slice(0, 8)}.pdf`)
 }

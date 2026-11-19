@@ -41,21 +41,21 @@ export default async function DealerDetailPage({ params }: Props) {
     <div className="py-6 flex flex-col gap-4 max-w-lg mx-auto">
 
       <div className="flex items-center gap-3">
-        <Link href="/dealers" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/40 active:scale-95 transition-transform">
-          <ChevronLeft size={18} className="text-[#45464d]" />
+        <Link href="/dealers" className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas border border-line/40 active:scale-95 transition-transform">
+          <ChevronLeft size={18} className="text-ink-soft" />
         </Link>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-bold text-[#0b1c30] truncate" style={{ fontFamily: 'var(--font-manrope)' }}>
+          <h1 className="text-[20px] font-bold text-ink truncate" style={{ fontFamily: 'var(--font-manrope)' }}>
             {dealer.name}
           </h1>
-          <p className="text-[12px] text-[#76777d]">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</p>
+          <p className="text-[12px] text-ink-muted">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</p>
         </div>
       </div>
 
       <LedgerSummaryCards totalCredit={totalCredit} totalDebit={totalDebit} />
 
       <div>
-        <h2 className="text-[13px] font-semibold tracking-widest uppercase text-[#45464d] mb-3">Ledger</h2>
+        <h2 className="text-[13px] font-semibold tracking-widest uppercase text-ink-soft mb-3">Ledger</h2>
         <LedgerTable entries={entriesWithBalance} />
       </div>
 

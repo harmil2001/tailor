@@ -39,21 +39,21 @@ export default function FabricPicker({ fabrics, value, onChange }: {
     const showCalc    = !!value.metersUsed && !metersOver && meters > 0
 
     return (
-      <div className="mt-1 p-3 bg-white border border-[#c6c6cd] rounded-xl flex flex-col gap-2">
+      <div className="mt-1 p-3 bg-white border border-line rounded-xl flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-[13px] font-semibold text-[#0b1c30]">{value.brand} · {value.color}</p>
-              <span className="text-[11px] font-mono font-bold text-[#45464d] bg-[#f0f0f5] px-2 py-0.5 rounded-full tracking-widest border border-black/10">
+              <p className="text-[13px] font-semibold text-ink">{value.brand} · {value.color}</p>
+              <span className="text-[11px] font-mono font-bold text-ink-soft bg-surface-muted px-2 py-0.5 rounded-full tracking-widest border border-black/10">
                 {value.code}
               </span>
             </div>
-            <p className="text-[11px] text-[#76777d] mt-0.5">
+            <p className="text-[11px] text-ink-muted mt-0.5">
               {value.availableMeters.toFixed(1)}m available · ₹{value.pricePerMeter.toFixed(0)}/m
             </p>
           </div>
-          <button onClick={() => onChange(null)} className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f0f0f5] flex-shrink-0">
-            <X size={11} className="text-[#45464d]" />
+          <button onClick={() => onChange(null)} className="w-6 h-6 flex items-center justify-center rounded-full bg-surface-muted flex-shrink-0">
+            <X size={11} className="text-ink-soft" />
           </button>
         </div>
         <input
@@ -62,15 +62,15 @@ export default function FabricPicker({ fabrics, value, onChange }: {
           value={value.metersUsed}
           onChange={e => onChange({ ...value, metersUsed: e.target.value })}
           placeholder="Meters required"
-          className={`w-full h-10 px-3 bg-[#f8f9ff] border rounded-lg text-[13px] focus:outline-none transition-colors ${metersOver ? 'border-[#ba1a1a]' : 'border-[#c6c6cd] focus:border-black'}`}
+          className={`w-full h-10 px-3 bg-canvas border rounded-lg text-[13px] focus:outline-none transition-colors ${metersOver ? 'border-danger' : 'border-line focus:border-brand'}`}
         />
         {metersOver && (
-          <p className="text-[11px] text-[#ba1a1a] -mt-1">Only {value.availableMeters.toFixed(1)}m available</p>
+          <p className="text-[11px] text-danger -mt-1">Only {value.availableMeters.toFixed(1)}m available</p>
         )}
         {showCalc && (
-          <p className="text-[12px] font-semibold text-[#775a19]">
+          <p className="text-[12px] font-semibold text-accent">
             Fabric cost: ₹{fabricTotal.toFixed(0)}
-            <span className="font-normal text-[#76777d]"> ({meters}m × ₹{value.pricePerMeter.toFixed(0)}/m)</span>
+            <span className="font-normal text-ink-muted"> ({meters}m × ₹{value.pricePerMeter.toFixed(0)}/m)</span>
           </p>
         )}
       </div>
@@ -89,10 +89,10 @@ export default function FabricPicker({ fabrics, value, onChange }: {
           if (match) select(match)
         }}
         placeholder="Paste fabric code (e.g. FAB-001)…"
-        className="w-full h-10 px-3 bg-white border border-[#c6c6cd] rounded-lg text-[13px] font-mono focus:outline-none focus:border-black transition-colors"
+        className="w-full h-10 px-3 bg-white border border-line rounded-lg text-[13px] font-mono focus:outline-none focus:border-brand transition-colors"
       />
       {noMatch && (
-        <p className="mt-1.5 text-[11px] text-[#ba1a1a]">No fabric found with code &quot;{query.trim()}&quot;</p>
+        <p className="mt-1.5 text-[11px] text-danger">No fabric found with code &quot;{query.trim()}&quot;</p>
       )}
     </div>
   )

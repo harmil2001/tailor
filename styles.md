@@ -1,4 +1,4 @@
-# My Brothers — Design System
+# Dhaaga — Design System
 
 **Mobile-first always.** This app is used by the tailor from his phone during shop hours. Every screen must be designed for ~390px width first. No horizontal scrolling. Generous touch targets (min 48px). Desktop is a bonus, not the goal.
 
@@ -29,52 +29,40 @@ Loaded via `next/font/google` in `src/app/layout.tsx`:
 
 ## Color Palette
 
-Material Design 3 inspired. Light mode only for now.
+Theme: **Dhaaga — soft slate**. Light mode only. Low-saturation colours chosen to be easy on the eyes over a full working day.
 
-### Core
+Every colour is a token defined once in `src/app/globals.css` (`@theme static`). Use the Tailwind utility (`bg-brand`, `text-ink`, `border-line` …) or `var(--color-…)` in inline styles. **Never hard-code a hex value in a component.** The only exception is `src/lib/generateOrderPDF.ts`, which mirrors the palette because jsPDF needs literal colours.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `primary` | `#000000` | Main actions, active states, buttons |
-| `secondary` | `#775a19` | FAB, delivery dates, active nav tab, accents |
-| `background` | `#f8f9ff` | Page background |
-| `surface` | `#f8f9ff` | Card backgrounds, top bar |
-| `error` | `#ba1a1a` | Pending badge, balance due amounts |
-| `outline` | `#76777d` | Icon color, subtle borders |
-| `outline-variant` | `#c6c6cd` | Card borders, dividers, input borders |
+| `canvas` | `#f6f6f4` | Page background, top bar |
+| `surface-muted` | `#efeeea` | Quiet fills, progress tracks |
+| `line` | `#dddcd6` | Borders, dividers, input borders |
+| `ink` | `#2f3850` | Primary text |
+| `ink-soft` | `#666b77` | Secondary text |
+| `ink-muted` | `#7b7f89` | Icons, hints, inactive nav |
+| `brand` | `#3f4a63` | Buttons, active states, dark panels |
+| `brand-deep` | `#343e55` | Gradient end on dark panels |
+| `brand-tint` | `#e6e9f0` | Active nav pill, tinted cards |
+| `accent` | `#8c7242` | FAB, small accents |
+| `accent-soft` | `#c9ae7c` | Logo needle, PDF rules |
+| `accent-tint` | `#f1e9d8` | Icon chips, Stitching badge |
+| `danger` | `#a8443d` | Errors, balance due |
+| `success` | `#3f6b54` | Paid, in stock |
 
-### Surface Containers (elevation layers)
-| Token | Hex | Usage |
+Each family also has `-wash`, `-tint`, `-tint-strong` and `-ink` steps where needed; see `globals.css` for the full list.
+
+### Status badges
+| Status | Background | Text |
 |---|---|---|
-| `surface-container-lowest` | `#ffffff` | Card fill |
-| `surface-container-low` | `#eff4ff` | Hover states |
-| `surface-container` | `#e5eeff` | — |
-| `surface-container-high` | `#dce9ff` | Cutting badge, inactive tabs |
-| `surface-container-highest` | `#d3e4fe` | Ready badge background |
+| Pending | `danger-tint` | `danger-ink` |
+| Stitching | `accent-tint` | `accent-ink` |
+| Ready | `info-tint` | `info-ink` |
+| Delivered | `success-tint` | `success` |
+| Cancelled | `neutral-tint` | `ink-soft` |
 
-### Text Colors
-| Token | Hex | Usage |
-|---|---|---|
-| `on-background` | `#0b1c30` | Default body text |
-| `on-surface` | `#0b1c30` | Card text |
-| `on-surface-variant` | `#45464d` | Secondary text, inactive nav |
-| `on-primary` | `#ffffff` | Text on black buttons |
-| `on-secondary` | `#ffffff` | Text on FAB |
-| `on-error-container` | `#93000a` | Pending badge text |
-| `on-secondary-container` | `#785a1a` | Stitching badge text |
-
-### Semantic / Badge Colors
-| Status | Background Token | Text Token |
-|---|---|---|
-| Pending | `error-container` `#ffdad6` | `on-error-container` `#93000a` |
-| Stitching | `secondary-container` `#fed488` | `on-secondary-container` `#785a1a` |
-| Ready | `surface-container-highest` `#d3e4fe` | `primary` `#000000` |
-| Delivered | `surface-container-high` `#dce9ff` | `on-surface-variant` `#45464d` |
-
-### Secondary Container
-| Token | Hex |
-|---|---|
-| `secondary-container` | `#fed488` |
-| `on-secondary-container` | `#785a1a` |
+### Brand
+The shop name and tagline live in `src/lib/brand.ts`; the logo mark is `src/components/ui/BrandLogo.tsx`.
 
 ---
 

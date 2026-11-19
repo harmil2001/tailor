@@ -14,8 +14,8 @@ const MEASUREMENT_LABELS: Record<string, string> = {
 
 type Feedback = { type: 'success' | 'error'; message: string }
 
-const inputCls = 'w-full h-12 px-4 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors'
-const labelCls = 'block text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-2'
+const inputCls = 'w-full h-12 px-4 bg-canvas border border-line rounded-xl text-[14px] text-ink focus:outline-none focus:border-brand transition-colors'
+const labelCls = 'block text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-2'
 
 export default function EditCustomerSheet({ customer, variant = 'light' }: { customer: Customer; variant?: 'light' | 'dark' }) {
   const [mounted, setMounted]   = useState(false)
@@ -64,26 +64,26 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
     <>
       <button
         onClick={handleOpen}
-        className={`w-10 h-10 flex items-center justify-center rounded-full active:scale-95 transition-transform flex-shrink-0 ${variant === 'dark' ? 'bg-white/15 border border-white/20' : 'bg-[#f8f9ff] border border-[#c6c6cd]/40'}`}
+        className={`w-10 h-10 flex items-center justify-center rounded-full active:scale-95 transition-transform flex-shrink-0 ${variant === 'dark' ? 'bg-white/15 border border-white/20' : 'bg-canvas border border-line/40'}`}
         aria-label="Edit customer"
       >
-        <Pencil size={16} className={variant === 'dark' ? 'text-white' : 'text-[#45464d]'} />
+        <Pencil size={16} className={variant === 'dark' ? 'text-white' : 'text-ink-soft'} />
       </button>
 
       {mounted && open && createPortal(
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
 
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[#c6c6cd]/30 flex-shrink-0">
-            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f8f9ff] border border-[#c6c6cd]/40 active:scale-95 transition-transform">
-              <X size={16} className="text-[#45464d]" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line/30 flex-shrink-0">
+            <button onClick={() => !isPending && setOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas border border-line/40 active:scale-95 transition-transform">
+              <X size={16} className="text-ink-soft" />
             </button>
-            <p className="text-[17px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>Edit Customer</p>
+            <p className="text-[17px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>Edit Customer</p>
             <div className="w-9" />
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             {feedback && (
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium mb-5 ${feedback.type === 'success' ? 'bg-[#d6f5e3] text-[#1a5c34]' : 'bg-[#ffdad6] text-[#93000a]'}`}>
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium mb-5 ${feedback.type === 'success' ? 'bg-success-tint text-success' : 'bg-danger-tint text-danger-ink'}`}>
                 {feedback.type === 'success' ? <CheckCircle2 size={16} className="flex-shrink-0" /> : <AlertCircle size={16} className="flex-shrink-0" />}
                 {feedback.message}
               </div>
@@ -102,12 +102,12 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
               </div>
 
               <div>
-                <label className={labelCls}>Measurements <span className="normal-case tracking-normal font-normal text-[#76777d]">(inches)</span></label>
+                <label className={labelCls}>Measurements <span className="normal-case tracking-normal font-normal text-ink-muted">(inches)</span></label>
                 <div className="grid grid-cols-2 gap-3">
                   {MEASUREMENT_KEYS.map(key => (
                     <div key={key}>
-                      <p className="text-[11px] text-[#76777d] mb-1">{MEASUREMENT_LABELS[key]}</p>
-                      <input type="number" inputMode="decimal" value={meas[key]} onChange={e => setMeas(prev => ({ ...prev, [key]: e.target.value }))} placeholder="—" className="w-full h-11 px-3 bg-[#f8f9ff] border border-[#c6c6cd] rounded-xl text-[14px] text-[#0b1c30] focus:outline-none focus:border-black transition-colors" />
+                      <p className="text-[11px] text-ink-muted mb-1">{MEASUREMENT_LABELS[key]}</p>
+                      <input type="number" inputMode="decimal" value={meas[key]} onChange={e => setMeas(prev => ({ ...prev, [key]: e.target.value }))} placeholder="—" className="w-full h-11 px-3 bg-canvas border border-line rounded-xl text-[14px] text-ink focus:outline-none focus:border-brand transition-colors" />
                     </div>
                   ))}
                 </div>
@@ -116,9 +116,9 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
             </div>
           </div>
 
-          <div className="px-5 py-4 border-t border-[#c6c6cd]/20 flex-shrink-0">
+          <div className="px-5 py-4 border-t border-line/20 flex-shrink-0">
             <div className="max-w-lg mx-auto">
-              <button onClick={handleSave} disabled={isPending || !name.trim() || !phone.trim()} className="w-full h-12 bg-black text-white rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50">
+              <button onClick={handleSave} disabled={isPending || !name.trim() || !phone.trim()} className="w-full h-12 bg-brand text-white rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50">
                 {isPending ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : 'Save Changes'}
               </button>
             </div>

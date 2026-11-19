@@ -30,8 +30,8 @@ export default function SortTabs() {
             onClick={() => select(value)}
             className={`flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide whitespace-nowrap transition-all active:scale-95 ${
               isActive
-                ? 'bg-[#775a19] text-white shadow-md'
-                : 'bg-white text-[#45464d] border border-[#c6c6cd]'
+                ? 'bg-accent text-white shadow-md'
+                : 'bg-white text-ink-soft border border-line'
             }`}
           >
             <Icon size={13} />

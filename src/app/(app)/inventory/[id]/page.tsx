@@ -14,13 +14,13 @@ interface Props {
 }
 
 const PATTERN_COLORS: Record<string, string> = {
-  Plain:       'bg-[#e5eeff] text-[#1a3a8f]',
-  Printed:     'bg-[#fed488] text-[#785a1a]',
-  Chequered:   'bg-[#d3e4fe] text-[#0040a0]',
-  Striped:     'bg-[#f3e8ff] text-[#6b21a8]',
-  Dotted:      'bg-[#fce7f3] text-[#9d174d]',
-  Embroidered: 'bg-[#d6f5e3] text-[#1a5c34]',
-  Jacquard:    'bg-[#ffdad6] text-[#93000a]',
+  Plain:       'bg-brand-tint text-info-ink',
+  Printed:     'bg-accent-tint text-accent-ink',
+  Chequered:   'bg-info-tint text-info-ink',
+  Striped:     'bg-plum-tint text-plum-ink',
+  Dotted:      'bg-rose-tint text-rose-ink',
+  Embroidered: 'bg-success-tint text-success',
+  Jacquard:    'bg-danger-tint text-danger-ink',
 }
 
 export default async function FabricDetailPage({ params }: Props) {
@@ -41,7 +41,7 @@ export default async function FabricDetailPage({ params }: Props) {
     <div className="pb-10 flex flex-col gap-4 max-w-lg mx-auto">
 
       {/* Hero */}
-      <div className="bg-gradient-to-b from-[#0b1c30] to-[#1c3554] rounded-b-[32px] px-5 pt-5 pb-7">
+      <div className="bg-gradient-to-b from-brand to-brand-deep rounded-b-[32px] px-5 pt-5 pb-7">
         <div className="flex items-center justify-between mb-6">
           <Link href="/inventory" className="flex items-center gap-2 text-white/70 active:scale-95 transition-transform">
             <ArrowLeft size={20} />
@@ -83,7 +83,7 @@ export default async function FabricDetailPage({ params }: Props) {
           <div className="flex justify-between items-center mb-1">
             <span className="text-[11px] font-semibold text-white/50 uppercase tracking-widest">Stock</span>
             {isLow && (
-              <span className="text-[11px] font-bold text-white bg-[#ba1a1a] px-2.5 py-0.5 rounded-full animate-pulse">
+              <span className="text-[11px] font-bold text-white bg-danger px-2.5 py-0.5 rounded-full animate-pulse">
                 Low Stock
               </span>
             )}
@@ -96,7 +96,7 @@ export default async function FabricDetailPage({ params }: Props) {
           </div>
           <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${isLow ? 'bg-[#ff8a80]' : 'bg-white/70'}`}
+              className={`h-full rounded-full transition-all ${isLow ? 'bg-danger-soft' : 'bg-white/70'}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -104,40 +104,40 @@ export default async function FabricDetailPage({ params }: Props) {
       </div>
 
       {/* Pricing */}
-      <div className="mx-4 bg-white rounded-[20px] border border-[#c6c6cd]/40 shadow-sm p-5">
-        <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-4">Pricing</p>
+      <div className="mx-4 bg-white rounded-[20px] border border-line/40 shadow-sm p-5">
+        <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-4">Pricing</p>
         <div className="flex items-center gap-2">
-          <div className="flex-1 bg-[#f8f9ff] rounded-xl p-3 text-center">
-            <p className="text-[10px] text-[#76777d] font-medium mb-1">Buy</p>
-            <p className="text-[18px] font-bold text-[#0b1c30] leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>₹{purchasePrice.toFixed(0)}</p>
-            <p className="text-[10px] text-[#76777d] mt-1">/ metre</p>
+          <div className="flex-1 bg-canvas rounded-xl p-3 text-center">
+            <p className="text-[10px] text-ink-muted font-medium mb-1">Buy</p>
+            <p className="text-[18px] font-bold text-ink leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>₹{purchasePrice.toFixed(0)}</p>
+            <p className="text-[10px] text-ink-muted mt-1">/ metre</p>
           </div>
-          <p className="text-[15px] text-[#c6c6cd] font-bold">×</p>
-          <div className="flex-1 bg-[#f8f9ff] rounded-xl p-3 text-center">
-            <p className="text-[10px] text-[#76777d] font-medium mb-1">Factor</p>
-            <p className="text-[18px] font-bold text-[#0b1c30] leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>{factor.toFixed(2)}</p>
+          <p className="text-[15px] text-line font-bold">×</p>
+          <div className="flex-1 bg-canvas rounded-xl p-3 text-center">
+            <p className="text-[10px] text-ink-muted font-medium mb-1">Factor</p>
+            <p className="text-[18px] font-bold text-ink leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>{factor.toFixed(2)}</p>
             <p className="text-[10px] text-transparent mt-1">·</p>
           </div>
-          <p className="text-[15px] text-[#c6c6cd] font-bold">=</p>
-          <div className="flex-1 bg-[#e5eeff] rounded-xl p-3 text-center">
-            <p className="text-[10px] text-[#1a3a8f] font-medium mb-1">Sell</p>
-            <p className="text-[18px] font-bold text-[#0b1c30] leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>₹{sellingPrice.toFixed(0)}</p>
-            <p className="text-[10px] text-[#76777d] mt-1">/ metre</p>
+          <p className="text-[15px] text-line font-bold">=</p>
+          <div className="flex-1 bg-brand-tint rounded-xl p-3 text-center">
+            <p className="text-[10px] text-info-ink font-medium mb-1">Sell</p>
+            <p className="text-[18px] font-bold text-ink leading-none" style={{ fontFamily: 'var(--font-manrope)' }}>₹{sellingPrice.toFixed(0)}</p>
+            <p className="text-[10px] text-ink-muted mt-1">/ metre</p>
           </div>
         </div>
       </div>
 
       {/* QR Code */}
-      <div className="mx-4 bg-white rounded-[20px] border border-[#c6c6cd]/40 shadow-sm p-5">
-        <p className="text-[11px] font-semibold tracking-widest text-[#45464d] uppercase mb-1">QR Code</p>
-        <p className="text-[12px] text-[#76777d] mb-4">Print & stick on the fabric bolt for quick scanning.</p>
+      <div className="mx-4 bg-white rounded-[20px] border border-line/40 shadow-sm p-5">
+        <p className="text-[11px] font-semibold tracking-widest text-ink-soft uppercase mb-1">QR Code</p>
+        <p className="text-[12px] text-ink-muted mb-4">Print & stick on the fabric bolt for quick scanning.</p>
         <FabricQRCode fabricId={fabric.id} label={`${fabric.brand} · ${fabric.color} · ${fabric.pattern}`} code={fabric.code} />
       </div>
 
       {/* Meta */}
-      <div className="mx-4 flex items-center justify-between px-5 py-3 bg-white rounded-[16px] border border-[#c6c6cd]/40">
-        <span className="text-[13px] text-[#45464d]">Last updated</span>
-        <span className="text-[13px] font-semibold text-[#0b1c30]">{updatedAt}</span>
+      <div className="mx-4 flex items-center justify-between px-5 py-3 bg-white rounded-[16px] border border-line/40">
+        <span className="text-[13px] text-ink-soft">Last updated</span>
+        <span className="text-[13px] font-semibold text-ink">{updatedAt}</span>
       </div>
 
       {/* Delete */}

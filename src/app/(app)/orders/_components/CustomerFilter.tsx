@@ -69,7 +69,7 @@ export default function CustomerFilter({ customers }: { customers: CustomerOptio
         ref={triggerRef}
         onClick={openDropdown}
         className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap border transition-all active:scale-95 ${
-          current ? 'bg-black text-white border-transparent' : 'bg-white text-[#45464d] border-[#c6c6cd]'
+          current ? 'bg-brand text-white border-transparent' : 'bg-white text-ink-soft border-line'
         }`}
       >
         <User size={12} strokeWidth={2.5} className="flex-shrink-0" />
@@ -81,19 +81,19 @@ export default function CustomerFilter({ customers }: { customers: CustomerOptio
         <div
           ref={dropdownRef}
           style={{ position: 'fixed', top: dropPos.top, left: dropPos.left, minWidth: dropPos.minWidth }}
-          className="z-[200] bg-white rounded-2xl shadow-[0px_8px_32px_rgba(15,23,42,0.14)] border border-[#c6c6cd]/40 overflow-hidden"
+          className="z-[200] bg-white rounded-2xl shadow-[0px_8px_32px_rgba(15,23,42,0.14)] border border-line/40 overflow-hidden"
         >
           {/* Search input */}
           <div className="px-3 pt-3 pb-2">
-            <div className="flex items-center gap-2 h-9 px-3 bg-[#f8f9ff] rounded-xl border border-[#c6c6cd]/40">
-              <Search size={13} className="text-[#76777d] flex-shrink-0" />
+            <div className="flex items-center gap-2 h-9 px-3 bg-canvas rounded-xl border border-line/40">
+              <Search size={13} className="text-ink-muted flex-shrink-0" />
               <input
                 autoFocus
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search by name or phone…"
-                className="flex-1 min-w-0 text-[12px] text-[#0b1c30] bg-transparent focus:outline-none placeholder:text-[#76777d]"
+                className="flex-1 min-w-0 text-[12px] text-ink bg-transparent focus:outline-none placeholder:text-ink-muted"
               />
             </div>
           </div>
@@ -102,34 +102,34 @@ export default function CustomerFilter({ customers }: { customers: CustomerOptio
             {/* All option — always visible */}
             <button
               onClick={() => select('')}
-              className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] hover:bg-[#f8f9ff] active:bg-[#e5eeff] transition-colors"
+              className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] hover:bg-canvas active:bg-brand-tint transition-colors"
             >
-              <span className={!current ? 'font-semibold text-[#0b1c30]' : 'font-medium text-[#45464d]'}>
+              <span className={!current ? 'font-semibold text-ink' : 'font-medium text-ink-soft'}>
                 All Customers
               </span>
-              {!current && <Check size={14} className="text-[#775a19]" />}
+              {!current && <Check size={14} className="text-accent" />}
             </button>
 
             {/* Results only when searching */}
             {query.trim() && (
               <>
-                <div className="h-px bg-[#c6c6cd]/30 mx-3" />
+                <div className="h-px bg-line/30 mx-3" />
                 {filtered.length === 0 ? (
-                  <p className="text-[12px] text-[#76777d] text-center py-5">No customers found</p>
+                  <p className="text-[12px] text-ink-muted text-center py-5">No customers found</p>
                 ) : (
                   filtered.map(c => (
                     <button
                       key={c.id}
                       onClick={() => select(c.id)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#f8f9ff] active:bg-[#e5eeff] transition-colors"
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-canvas active:bg-brand-tint transition-colors"
                     >
                       <div className="text-left min-w-0">
-                        <p className={`text-[13px] truncate ${current === c.id ? 'font-semibold text-[#0b1c30]' : 'font-medium text-[#45464d]'}`}>
+                        <p className={`text-[13px] truncate ${current === c.id ? 'font-semibold text-ink' : 'font-medium text-ink-soft'}`}>
                           {c.name}
                         </p>
-                        <p className="text-[11px] text-[#76777d]">{c.phone}</p>
+                        <p className="text-[11px] text-ink-muted">{c.phone}</p>
                       </div>
-                      {current === c.id && <Check size={14} className="text-[#775a19] flex-shrink-0 ml-2" />}
+                      {current === c.id && <Check size={14} className="text-accent flex-shrink-0 ml-2" />}
                     </button>
                   ))
                 )}

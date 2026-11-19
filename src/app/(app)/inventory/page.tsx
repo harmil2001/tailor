@@ -48,16 +48,16 @@ export default async function InventoryPage({ searchParams }: Props) {
     <div className="py-6 flex flex-col gap-4 max-w-lg mx-auto">
 
       <div className="flex justify-between items-center">
-        <h1 className="text-[22px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+        <h1 className="text-[22px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
           Stock
         </h1>
         <div className="flex items-center gap-2">
           {lowCount > 0 && !isLowFilter && (
-            <span className="text-[11px] font-bold text-white bg-[#ba1a1a] px-2.5 py-1 rounded-full">
+            <span className="text-[11px] font-bold text-white bg-danger px-2.5 py-1 rounded-full">
               {lowCount} low
             </span>
           )}
-          <span className="text-[12px] font-semibold text-[#45464d]">{total} total</span>
+          <span className="text-[12px] font-semibold text-ink-soft">{total} total</span>
         </div>
       </div>
 
@@ -68,14 +68,14 @@ export default async function InventoryPage({ searchParams }: Props) {
 
       {total === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
-          <div className="w-16 h-16 rounded-full bg-[#e5eeff] flex items-center justify-center">
-            <Package size={28} className="text-[#45464d]" />
+          <div className="w-16 h-16 rounded-full bg-brand-tint flex items-center justify-center">
+            <Package size={28} className="text-ink-soft" />
           </div>
           <div className="text-center">
-            <p className="text-[16px] font-semibold text-[#0b1c30]" style={{ fontFamily: 'var(--font-manrope)' }}>
+            <p className="text-[16px] font-semibold text-ink" style={{ fontFamily: 'var(--font-manrope)' }}>
               {isLowFilter ? 'No low-stock items' : 'No fabrics found'}
             </p>
-            <p className="text-[13px] text-[#45464d] mt-1">
+            <p className="text-[13px] text-ink-soft mt-1">
               {isLowFilter ? 'All fabrics are well-stocked.' : 'Try adjusting your filters.'}
             </p>
           </div>

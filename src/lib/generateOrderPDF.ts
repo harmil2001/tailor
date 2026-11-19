@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf'
 import { BRAND, BRAND_FULL } from '@/lib/brand'
+import { THEME } from '@/config'
 
 type Item = { name: string; clothProvidedBy: 'Customer' | 'Tailor' }
 
@@ -15,16 +16,17 @@ export interface OrderPDFData {
   notes?: string | null
 }
 
-// jsPDF needs literal colours, so this mirrors the theme tokens in globals.css.
+// jsPDF needs literal colours, so they come from the shop's resolved theme.
 const C = {
-  black:   '#3f4a63', // brand
-  gold:    '#c9ae7c', // accent-soft
+  black:   THEME.brand,
+  gold:    THEME['accent-soft'],
   white:   '#ffffff',
-  gray:    '#666b77', // ink-soft
-  light:   '#efeeea', // surface-muted
-  border:  '#dddcd6', // line
-  red:     '#a8443d', // danger
-  green:   '#3f6b54', // success
+  gray:    THEME['ink-soft'],
+  light:   THEME['surface-muted'],
+  border:  THEME.line,
+  red:     THEME.danger,
+  green:   THEME.success,
+  onDark:  THEME['brand-tint-strong'], // small text on the dark header and footer
 }
 
 function rgb(hex: string): [number, number, number] {
@@ -46,13 +48,13 @@ function tag(doc: jsPDF, label: string, x: number, y: number) {
 
 function statusColors(s: string): [string, string] {
   const map: Record<string, [string, string]> = {
-    Pending:   ['#f4e1de', '#8a3a34'],
-    Stitching: ['#f1e9d8', '#6e5a30'],
-    Ready:     ['#dfe5f0', '#3a4a78'],
-    Delivered: ['#e1ede5', '#3f6b54'],
-    Cancelled: ['#e9e8e4', '#666b77'],
+    Pending:   [THEME['danger-tint'],  THEME['danger-ink']],
+    Stitching: [THEME['accent-tint'],  THEME['accent-ink']],
+    Ready:     [THEME['info-tint'],    THEME['info-ink']],
+    Delivered: [THEME['success-tint'], THEME.success],
+    Cancelled: [THEME['neutral-tint'], THEME['ink-soft']],
   }
-  return map[s] ?? ['#e9e8e4', '#666b77']
+  return map[s] ?? [THEME['neutral-tint'], THEME['ink-soft']]
 }
 
 export function generateOrderPDF(order: OrderPDFData) {
@@ -71,7 +73,7 @@ export function generateOrderPDF(order: OrderPDFData) {
   doc.setFont('helvetica', 'bold'); doc.setFontSize(17); tc(doc, C.gold)
   doc.text(BRAND.name.toUpperCase(), W / 2, 14, { align: 'center' })
 
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(doc, '#d3d9e6')
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(doc, C.onDark)
   doc.text(BRAND.tagline, W / 2, 21.5, { align: 'center' })
 
   fc(doc, C.gold); doc.rect(0, 29, W, 1, 'F')      // bottom gold line
@@ -218,7 +220,7 @@ export function generateOrderPDF(order: OrderPDFData) {
   doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(doc, C.gold)
   doc.text(BRAND_FULL, W / 2, footY + 6.5, { align: 'center' })
 
-  doc.setFont('courier', 'normal'); doc.setFontSize(6); tc(doc, '#d3d9e6')
+  doc.setFont('courier', 'normal'); doc.setFontSize(6); tc(doc, C.onDark)
   doc.text(`Order ID: ${order.id}`, W / 2, footY + 11.5, { align: 'center' })
 
   const safeName = order.customerName.replace(/\s+/g, '-')

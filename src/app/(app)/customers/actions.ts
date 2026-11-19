@@ -10,6 +10,7 @@ export async function createCustomer(data: {
   name: string
   phone: string
   measurements?: Record<string, string>
+  whatsappOptIn?: boolean
 }): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
     const [row] = await db
@@ -18,6 +19,7 @@ export async function createCustomer(data: {
         name: data.name.trim(),
         phone: data.phone.trim(),
         measurements: data.measurements ?? {},
+        whatsappOptIn: data.whatsappOptIn ?? false,
       })
       .returning({ id: customers.id })
 

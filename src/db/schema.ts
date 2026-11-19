@@ -7,6 +7,8 @@ import {
   pgEnum,
   jsonb,
   date,
+  boolean,
+  index,
 } from 'drizzle-orm/pg-core'
 import { relations, sql } from 'drizzle-orm'
 
@@ -50,6 +52,9 @@ export const customers = pgTable('customers', {
   // Flexible JSONB — stores upper + lower body measurements
   // e.g. { chest: "42", waist: "34", inseam: "30", shirtLength: "28" }
   measurements: jsonb('measurements').$type<Record<string, string>>().default({}),
+  // The customer agreed to receive WhatsApp updates. WhatsApp requires opt-in, so no message
+  // is sent while this is false.
+  whatsappOptIn: boolean('whatsapp_opt_in').notNull().default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -129,6 +134,31 @@ export const dealerLedgerEntries = pgTable('dealer_ledger_entries', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// ---------- WhatsApp message log ----------
+// One row per message attempt. `status` is one of:
+//   queued | sent | failed | skipped | dry_run
+export const whatsappMessages = pgTable('whatsapp_messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orderId: uuid('order_id').references(() => orders.id, { onDelete: 'cascade' }),
+  customerId: uuid('customer_id').references(() => customers.id, { onDelete: 'set null' }),
+  // order_placed | status_update | payment_received
+  event: text('event').notNull(),
+  // The new status, or the amount received, that caused the message
+  detail: text('detail'),
+  template: text('template').notNull(),
+  toPhone: text('to_phone'),
+  status: text('status').notNull(),
+  providerMessageId: text('provider_message_id'),
+  error: text('error'),
+  // Set only where a message must never be sent twice (for example order_placed)
+  dedupeKey: text('dedupe_key').unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+}, (t) => [
+  index('whatsapp_messages_order_idx').on(t.orderId),
+  index('whatsapp_messages_provider_idx').on(t.providerMessageId),
+])
+
 // ---------- Relations ----------
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -206,6 +236,11 @@ export type FabricPattern = Fabric['pattern']
 
 export type LowStockAlert = typeof lowStockAlerts.$inferSelect
 export type NewLowStockAlert = typeof lowStockAlerts.$inferInsert
+
+export type WhatsAppMessage = typeof whatsappMessages.$inferSelect
+export type NewWhatsAppMessage = typeof whatsappMessages.$inferInsert
+export type WhatsAppMessageStatus = 'queued' | 'sent' | 'failed' | 'skipped' | 'dry_run'
+export type WhatsAppEvent = 'order_placed' | 'status_update' | 'payment_received'
 
 export type Dealer = typeof dealers.$inferSelect
 export type NewDealer = typeof dealers.$inferInsert

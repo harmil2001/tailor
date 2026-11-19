@@ -57,7 +57,8 @@ function statusColors(s: string): [string, string] {
   return map[s] ?? [THEME['neutral-tint'], THEME['ink-soft']]
 }
 
-export function generateOrderPDF(order: OrderPDFData) {
+/** Draws the order slip. Used both by the download button (browser) and by WhatsApp (server). */
+function buildOrderPDF(order: OrderPDFData): { doc: jsPDF; filename: string } {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' })
   const W   = doc.internal.pageSize.getWidth()  // 148mm
   const H   = doc.internal.pageSize.getHeight() // 210mm
@@ -223,6 +224,18 @@ export function generateOrderPDF(order: OrderPDFData) {
   doc.setFont('courier', 'normal'); doc.setFontSize(6); tc(doc, C.onDark)
   doc.text(`Order ID: ${order.id}`, W / 2, footY + 11.5, { align: 'center' })
 
-  const safeName = order.customerName.replace(/\s+/g, '-')
-  doc.save(`${BRAND.name}-${safeName}-${order.id.slice(0, 8)}.pdf`)
+  const safeName = order.customerName.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'order'
+  return { doc, filename: `${BRAND.name}-${safeName}-${order.id.slice(0, 8)}.pdf` }
+}
+
+/** Downloads the order slip in the browser. */
+export function generateOrderPDF(order: OrderPDFData) {
+  const { doc, filename } = buildOrderPDF(order)
+  doc.save(filename)
+}
+
+/** The order slip as PDF bytes, for attaching to a WhatsApp message. Works on the server. */
+export function orderPDFBytes(order: OrderPDFData): { bytes: Uint8Array; filename: string } {
+  const { doc, filename } = buildOrderPDF(order)
+  return { bytes: new Uint8Array(doc.output('arraybuffer')), filename }
 }

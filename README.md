@@ -37,6 +37,7 @@ Everything that differs between shops lives in one file per shop: `src/config/sh
 | `features.dealers` | Dealer accounts and ledger |
 | `features.stock` | Fabric stock, low-stock alerts, fabric picking on orders. Needs `clothChoice` |
 | `features.clothChoice` | The Customer / Tailor cloth choice on each order item |
+| `features.whatsapp` | WhatsApp messages to customers (see below) |
 | `theme` | Optional colour overrides. Leave out to keep the default palette |
 
 Which file is used is picked by the `SHOP_ID` environment variable. If it is not set, **`dhaaga`** is used.
@@ -59,6 +60,48 @@ Each shop needs its own database and its own `AUTH_SECRET`, so one shop's custom
 The default palette is defined twice because Tailwind needs it in CSS and the PDF needs literal values in code:
 `src/app/globals.css` (the `@theme static` block) and `src/config/theme.ts`. `npm run shop:check` fails if they differ.
 A shop's `theme` overrides are applied on top as CSS variables, and the PDF invoice uses the same colours.
+
+## WhatsApp messages
+
+When `features.whatsapp` is on, the app sends WhatsApp messages to customers through Meta's WhatsApp Business Cloud API:
+
+| When | Template | PDF |
+|---|---|---|
+| A new order is created | `order_confirmation` | order slip attached |
+| An order moves to Stitching, Ready, Delivered or Cancelled | `order_status_update` | no |
+| The advance paid on an order goes up | `payment_receipt` | updated order slip attached |
+
+Rules the code follows:
+- **Opt-in:** a customer only gets messages if "Send WhatsApp updates" is ticked on their profile. Nothing is sent otherwise.
+- **Orders never fail because of WhatsApp.** If sending fails the order is still saved and the screen shows why.
+- **Test mode:** without `WHATSAPP_ACCESS_TOKEN` and `WHATSAPP_PHONE_NUMBER_ID` nothing is sent. Messages are logged to the database and the terminal instead.
+- Each message attempt is stored in the `whatsapp_messages` table. Run `npm run db:migrate` on a shop's database before turning WhatsApp on.
+- A confirmation for an order can only be sent once.
+
+### Environment variables
+
+| Name | Purpose |
+|---|---|
+| `WHATSAPP_ACCESS_TOKEN` | A permanent token from a Meta System User (not the 24-hour test token) |
+| `WHATSAPP_PHONE_NUMBER_ID` | The sender's Phone Number ID, from the WhatsApp "API Setup" page in the Meta app |
+| `APP_URL` | The tracking link in messages, for example `https://your-shop.vercel.app`. On Vercel it falls back to the production domain. It must not be localhost when sending for real |
+
+### Try it with Meta's free test number
+
+1. In the Meta developer app, add the WhatsApp product. On the API Setup page, copy the Phone Number ID and generate a temporary token, and add your own phone as a recipient.
+2. Create the three templates in WhatsApp Manager (category **Utility**, language English) using the text in `src/lib/whatsapp/templates.ts`. The two with a PDF need a Document header, and Meta asks for a sample PDF (use one from an order's "Download PDF"). Names must match exactly.
+3. In `.env.local` set `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` and `APP_URL` (your live site address, not localhost), and set `features.whatsapp: true` in the shop's settings file.
+4. Run `npm run dev`, add a customer with your own WhatsApp number and the box ticked, create an order, then change its status and add a payment.
+
+### Go live for a shop
+
+1. Create a Meta Business account and a WhatsApp Business account with rupee billing, and add a payment method.
+2. Register the shop's own sender number (one that is not already on the regular WhatsApp app).
+3. Create the three templates as above, create a System User, and generate a permanent token with `whatsapp_business_messaging` and `whatsapp_business_management`.
+4. Set the environment variables on the host, set `features.whatsapp: true` in the shop's settings file, and redeploy.
+5. Send yourself a test order first.
+
+Costs: Meta charges per delivered message (about ₹0.12 to ₹0.15 for these templates at the time of writing; check Meta's rate card). Each shop pays Meta directly.
 
 ## Commands
 

@@ -4,10 +4,11 @@ import { and, eq, gte, lt, desc, asc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { db } from '@/db'
-import { orders, fabrics } from '@/db/schema'
+import { orders, fabrics, users } from '@/db/schema'
 import type { ClothProvidedBy, OrderItemFabric } from '@/db/schema'
 import { syncLowStockAlert } from '../inventory/alertActions'
 import { FEATURES } from '@/lib/features'
+import { sendOrderWhatsApp, type WhatsAppResult } from '@/lib/whatsapp/send'
 
 type OrderItem = { name: string; clothProvidedBy: ClothProvidedBy; fabric?: OrderItemFabric }
 
@@ -24,13 +25,18 @@ export async function updateOrder(
     status: import('@/db/schema').OrderStatus
     notes?: string
   },
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; whatsapp?: WhatsAppResult[] }> {
   try {
     if (!data.items.length || data.items.every(i => !i.name.trim()))
       return { success: false, error: 'At least one item is required' }
     if (!data.orderDate)        return { success: false, error: 'Order date is required' }
     if (data.status !== 'Cancelled' && Number(data.totalAmount) <= 0)
       return { success: false, error: 'Total amount must be greater than 0' }
+
+    // What the order looked like before this save, to know what changed
+    const [before] = FEATURES.whatsapp
+      ? await db.select({ status: orders.status, advancePaid: orders.advancePaid }).from(orders).where(eq(orders.id, id))
+      : []
 
     await db
       .update(orders)
@@ -44,9 +50,21 @@ export async function updateOrder(
       })
       .where(eq(orders.id, id))
 
+    // Tell the customer what changed. sendOrderWhatsApp never throws and never blocks the save.
+    const whatsapp: WhatsAppResult[] = []
+    if (before) {
+      if (before.status !== data.status) {
+        whatsapp.push(await sendOrderWhatsApp(id, { type: 'status_update', status: data.status }))
+      }
+      const paidNow = (parseFloat(data.advancePaid) || 0) - (parseFloat(before.advancePaid) || 0)
+      if (paidNow > 0) {
+        whatsapp.push(await sendOrderWhatsApp(id, { type: 'payment_received', amount: paidNow }))
+      }
+    }
+
     revalidatePath('/orders')
     revalidatePath('/')
-    return { success: true }
+    return { success: true, whatsapp }
   } catch (err) {
     console.error('[updateOrder]', err)
     return { success: false, error: 'Failed to update order. Please try again.' }
@@ -60,7 +78,7 @@ export async function createOrder(data: {
   totalAmount: string
   advancePaid: string
   notes?: string
-}): Promise<{ success: boolean; orderId?: string; error?: string }> {
+}): Promise<{ success: boolean; orderId?: string; error?: string; whatsapp?: WhatsAppResult }> {
   try {
     if (!data.customerId)        return { success: false, error: 'Customer is required' }
     if (!data.items.length || data.items.every(i => !i.name.trim()))
@@ -70,7 +88,12 @@ export async function createOrder(data: {
       return { success: false, error: 'Total amount must be greater than 0' }
 
     const session = await auth()
-    const userId = session?.user?.id ?? null
+    // userId is only an audit trail. A session can outlive its user (for example after a login was
+    // removed), and a dead id would make the insert fail, so fall back to "no user" in that case.
+    const sessionUserId = session?.user?.id ?? null
+    const userId = sessionUserId
+      ? (await db.select({ id: users.id }).from(users).where(eq(users.id, sessionUserId)))[0]?.id ?? null
+      : null
 
     // While the Stock module is off, orders carry no fabric and stock is never changed
     if (!FEATURES.stock) data = { ...data, items: data.items.map(i => ({ ...i, fabric: undefined })) }
@@ -109,10 +132,12 @@ export async function createOrder(data: {
       await syncLowStockAlert(item.fabric!.fabricId, newAvail, fab.totalMeters)
     }
 
+    const whatsapp = await sendOrderWhatsApp(row.id, { type: 'order_placed' })
+
     revalidatePath('/orders')
     revalidatePath('/inventory')
     revalidatePath('/')
-    return { success: true, orderId: row.id }
+    return { success: true, orderId: row.id, whatsapp }
   } catch (err) {
     console.error('[createOrder]', err)
     return { success: false, error: 'Failed to create order. Please try again.' }
@@ -151,3 +176,4 @@ export async function fetchOrdersPage(filters: OrderFilters, offset: number) {
     offset,
   })
 }
+

@@ -12,7 +12,7 @@ export interface UpdateCustomerResult {
 
 export async function updateCustomer(
   id: string,
-  data: { name: string; phone: string; measurements: Record<string, string> },
+  data: { name: string; phone: string; measurements: Record<string, string>; whatsappOptIn?: boolean },
 ): Promise<UpdateCustomerResult> {
   try {
     if (!data.name.trim()) return { error: 'Name is required' }
@@ -20,7 +20,13 @@ export async function updateCustomer(
 
     await db
       .update(customers)
-      .set({ name: data.name.trim(), phone: data.phone.trim(), measurements: data.measurements })
+      .set({
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        measurements: data.measurements,
+        // Only change the opt-in when the form sent it (it is not shown while WhatsApp is off)
+        ...(data.whatsappOptIn === undefined ? {} : { whatsappOptIn: data.whatsappOptIn }),
+      })
       .where(eq(customers.id, id))
 
     revalidatePath(`/customers/${id}`)

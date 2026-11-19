@@ -59,7 +59,10 @@ export interface ShopFeatures {
   stock: boolean
   /** The "Cloth: Customer / Tailor" choice on each order item. Off means always Customer. */
   clothChoice: boolean
+  /** WhatsApp messages to customers (order placed, status changes, payments). See README. */
+  whatsapp: boolean
 }
+
 
 export interface ShopConfig {
   /** Lowercase letters, numbers and dashes. Must match the file name. */

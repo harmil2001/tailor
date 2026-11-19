@@ -7,9 +7,10 @@ import { Plus, X, Loader2, CheckCircle2, AlertCircle, Search, ShoppingBag, Arrow
 import { createOrder } from '@/app/(app)/orders/actions'
 import OrderItemRow, { type OrderItemState } from './OrderItemRow'
 import type { Fabric } from '@/db/schema'
+import { whatsappNote } from '@/lib/whatsapp/notes'
 
 type Customer = { id: string; name: string; phone: string }
-type Feedback  = { type: 'success' | 'error'; message: string }
+type Feedback  = { type: 'success' | 'error'; message: string; slow?: boolean }
 
 function today() { return new Date().toISOString().split('T')[0] }
 
@@ -46,7 +47,7 @@ export default function CreateOrderSheet({
   useEffect(() => { setMounted(true) }, [])
   useEffect(() => {
     if (!feedback) return
-    if (feedback.type === 'success') { const t = setTimeout(() => { setOpen(false); router.refresh() }, 1200); return () => clearTimeout(t) }
+    if (feedback.type === 'success') { const t = setTimeout(() => { setOpen(false); router.refresh() }, feedback.slow ? 4500 : 1200); return () => clearTimeout(t) }
     const t = setTimeout(() => setFeedback(null), 3000); return () => clearTimeout(t)
   }, [feedback, router])
   useEffect(() => {
@@ -81,8 +82,9 @@ export default function CreateOrderSheet({
         orderDate, totalAmount: total, advancePaid: advance,
         notes: notes.trim() || undefined,
       })
+      const note = whatsappNote([result.whatsapp])
       setFeedback(result.success
-        ? { type: 'success', message: 'Order created!' }
+        ? { type: 'success', message: note.text ? `Order created! ${note.text}` : 'Order created!', slow: note.needsAttention }
         : { type: 'error', message: result.error ?? 'Something went wrong' })
     })
   }

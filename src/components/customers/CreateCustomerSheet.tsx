@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { UserPlus, X, Loader2, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react'
 import { createCustomer } from '@/app/(app)/customers/actions'
+import { FEATURES } from '@/lib/features'
+import WhatsAppOptIn from './WhatsAppOptIn'
 
 const MEASUREMENT_KEYS = ['chest', 'waist', 'shoulder', 'shirtLength', 'trouser', 'inseam']
 const MEASUREMENT_LABELS: Record<string, string> = {
@@ -23,6 +25,7 @@ export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 
   const [open, setOpen]         = useState(false)
   const [name, setName]         = useState('')
   const [phone, setPhone]       = useState('')
+  const [optIn, setOptIn]       = useState(false)
   const [isPending, start]      = useTransition()
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [meas, setMeas]         = useState<Record<string, string>>(
@@ -42,7 +45,7 @@ export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 
   }, [feedback, router])
 
   function handleOpen() {
-    setName(''); setPhone('')
+    setName(''); setPhone(''); setOptIn(false)
     setMeas(Object.fromEntries(MEASUREMENT_KEYS.map(k => [k, ''])))
     setFeedback(null); setOpen(true)
   }
@@ -50,7 +53,7 @@ export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 
   function handleSave() {
     start(async () => {
       const measurements = Object.fromEntries(Object.entries(meas).filter(([, v]) => v.trim() !== ''))
-      const result = await createCustomer({ name, phone, measurements })
+      const result = await createCustomer({ name, phone, measurements, whatsappOptIn: FEATURES.whatsapp ? optIn : false })
       setFeedback(result.error
         ? { type: 'error', message: result.error }
         : { type: 'success', message: 'Customer created successfully!' })
@@ -116,6 +119,8 @@ export default function CreateCustomerSheet({ variant = 'button' }: { variant?: 
                 <label className={labelCls}>Mobile Number</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 9876543210" className={inputCls} />
               </div>
+
+              <WhatsAppOptIn checked={optIn} onChange={setOptIn} />
 
               <div>
                 <label className={labelCls}>Measurements <span className="normal-case tracking-normal font-normal text-ink-muted">(inches, optional)</span></label>

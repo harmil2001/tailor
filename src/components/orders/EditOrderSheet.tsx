@@ -7,10 +7,11 @@ import { X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { updateOrder } from '@/app/(app)/orders/actions'
 import type { Order, Customer, OrderStatus, ClothProvidedBy } from '@/db/schema'
 import { FEATURES } from '@/lib/features'
+import { whatsappNote } from '@/lib/whatsapp/notes'
 
 type OrderItem = { name: string; clothProvidedBy: ClothProvidedBy }
 
-type Feedback = { type: 'success' | 'error'; message: string }
+type Feedback = { type: 'success' | 'error'; message: string; slow?: boolean }
 
 const ALL_STATUSES: OrderStatus[] = ['Pending', 'Stitching', 'Ready', 'Delivered', 'Cancelled']
 
@@ -53,7 +54,7 @@ export default function EditOrderSheet({ order, triggerOpen, onClose }: {
   useEffect(() => {
     if (!feedback) return
     if (feedback.type === 'success') {
-      const t = setTimeout(() => { setOpen(false); router.refresh() }, 1200)
+      const t = setTimeout(() => { setOpen(false); router.refresh() }, feedback.slow ? 4500 : 1200)
       return () => clearTimeout(t)
     }
     const t = setTimeout(() => setFeedback(null), 3000)
@@ -73,8 +74,9 @@ export default function EditOrderSheet({ order, triggerOpen, onClose }: {
         totalAmount: total, advancePaid: advance,
         notes: notes.trim() || undefined,
       })
+      const note = whatsappNote(result.whatsapp)
       setFeedback(result.success
-        ? { type: 'success', message: 'Order updated!' }
+        ? { type: 'success', message: note.text ? `Order updated! ${note.text}` : 'Order updated!', slow: note.needsAttention }
         : { type: 'error', message: result.error ?? 'Something went wrong' })
     })
   }

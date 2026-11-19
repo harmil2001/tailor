@@ -11,6 +11,7 @@ export default defineShop({
     dealers: false,
     stock: false,
     clothChoice: false,
+    whatsapp: false,
   },
   // No theme overrides: Dhaaga uses the default soft slate palette.
 })

@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom'
 import { Pencil, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { Customer } from '@/db/schema'
 import { updateCustomer } from '../actions'
+import { FEATURES } from '@/lib/features'
+import WhatsAppOptIn from '@/components/customers/WhatsAppOptIn'
 
 const MEASUREMENT_KEYS = ['chest', 'waist', 'shoulder', 'shirtLength', 'trouser', 'inseam']
 const MEASUREMENT_LABELS: Record<string, string> = {
@@ -22,6 +24,7 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
   const [open, setOpen]         = useState(false)
   const [name, setName]         = useState(customer.name)
   const [phone, setPhone]       = useState(customer.phone)
+  const [optIn, setOptIn]       = useState(customer.whatsappOptIn)
   const [isPending, start]      = useTransition()
   const [feedback, setFeedback] = useState<Feedback | null>(null)
 
@@ -43,7 +46,7 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
   }, [feedback])
 
   function handleOpen() {
-    setName(customer.name); setPhone(customer.phone)
+    setName(customer.name); setPhone(customer.phone); setOptIn(customer.whatsappOptIn)
     setMeas(Object.fromEntries(MEASUREMENT_KEYS.map(k => [k, existing[k] ?? ''])))
     setFeedback(null); setOpen(true)
   }
@@ -53,6 +56,7 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
       const result = await updateCustomer(customer.id, {
         name, phone,
         measurements: Object.fromEntries(Object.entries(meas).filter(([, v]) => v.trim() !== '')),
+        whatsappOptIn: FEATURES.whatsapp ? optIn : undefined,
       })
       setFeedback(result.error
         ? { type: 'error', message: result.error }
@@ -100,6 +104,8 @@ export default function EditCustomerSheet({ customer, variant = 'light' }: { cus
                 <label className={labelCls}>Mobile Number</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 9876543210" className={inputCls} />
               </div>
+
+              <WhatsAppOptIn checked={optIn} onChange={setOptIn} />
 
               <div>
                 <label className={labelCls}>Measurements <span className="normal-case tracking-normal font-normal text-ink-muted">(inches)</span></label>

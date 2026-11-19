@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
 import { Download } from 'lucide-react'
+import { THEME } from '@/config'
 
 export default function FabricQRCode({
   fabricId,
@@ -43,11 +44,11 @@ export default function FabricQRCode({
 
     const textY = qrCanvas.height + pad + gap + codeSize
     ctx.textAlign = 'center'
-    ctx.fillStyle = '#0b1c30'
+    ctx.fillStyle = THEME.ink
     ctx.font      = `bold ${codeSize}px monospace`
     ctx.fillText(code, w / 2, textY)
 
-    ctx.fillStyle = '#76777d'
+    ctx.fillStyle = THEME['ink-muted']
     ctx.font      = `${labelSize}px sans-serif`
     ctx.fillText(label, w / 2, textY + gap + labelSize)
 

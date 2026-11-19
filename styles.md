@@ -31,7 +31,7 @@ Loaded via `next/font/google` in `src/app/layout.tsx`:
 
 Theme: **Dhaaga — soft slate**. Light mode only. Low-saturation colours chosen to be easy on the eyes over a full working day.
 
-Every colour is a token defined once in `src/app/globals.css` (`@theme static`). Use the Tailwind utility (`bg-brand`, `text-ink`, `border-line` …) or `var(--color-…)` in inline styles. **Never hard-code a hex value in a component.** The only exception is `src/lib/generateOrderPDF.ts`, which mirrors the palette because jsPDF needs literal colours.
+Every colour is a token defined once in `src/app/globals.css` (`@theme static`). Each shop can override any token in its settings file (`src/config/shops/<shop-id>.ts`, see the README); the PDF invoice and QR labels read the resolved colours from `src/config/theme.ts`. Use the Tailwind utility (`bg-brand`, `text-ink`, `border-line` …) or `var(--color-…)` in inline styles. **Never hard-code a hex value in a component.** The only exception is `src/lib/generateOrderPDF.ts`, which mirrors the palette because jsPDF needs literal colours.
 
 | Token | Hex | Usage |
 |---|---|---|
@@ -62,7 +62,7 @@ Each family also has `-wash`, `-tint`, `-tint-strong` and `-ink` steps where nee
 | Cancelled | `neutral-tint` | `ink-soft` |
 
 ### Brand
-The shop name and tagline live in `src/lib/brand.ts`; the logo mark is `src/components/ui/BrandLogo.tsx`.
+The shop name, tagline and logo type come from the shop's settings file (`src/config/shops/<shop-id>.ts`); the logo mark is drawn by `src/components/ui/BrandLogo.tsx`.
 
 ---
 

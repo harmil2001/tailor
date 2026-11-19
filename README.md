@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shop management app
 
-## Getting Started
+A mobile-first order and customer manager for a tailoring shop. Next.js 16, React 19, Tailwind v4, Neon Postgres, Auth.js.
+The default shop is **Dhaaga**. Other shops can run the same code with their own settings file.
 
-First, run the development server:
+## Run it locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local` with:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL=       # Neon Postgres connection string
+AUTH_SECRET=        # generate with: openssl rand -base64 32
+AUTH_URL=http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+First time on a new database:
 
-## Learn More
+```bash
+npm run db:migrate
+npm run db:set-login      # create the admin login (asks in the terminal)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Shop settings
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Everything that differs between shops lives in one file per shop: `src/config/shops/<shop-id>.ts`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Setting | What it controls |
+|---|---|
+| `name`, `tagline` | Top bar, login, public order page, PDF invoice, browser tab |
+| `logo` | `needle` (Dhaaga mark), `monogram` (a letter) or `image` (a file in `/public`) |
+| `favicon` | Optional browser-tab icon in `/public` |
+| `features.dealers` | Dealer accounts and ledger |
+| `features.stock` | Fabric stock, low-stock alerts, fabric picking on orders. Needs `clothChoice` |
+| `features.clothChoice` | The Customer / Tailor cloth choice on each order item |
+| `theme` | Optional colour overrides. Leave out to keep the default palette |
 
-## Deploy on Vercel
+Which file is used is picked by the `SHOP_ID` environment variable. If it is not set, **`dhaaga`** is used.
+Settings are fixed when the app is built, so changing them (or `SHOP_ID`) needs a redeploy.
+Only the chosen shop's file is bundled into the app.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Add a shop
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Copy `src/config/shops/dhaaga.ts` to `src/config/shops/<shop-id>.ts` and edit it. The `id` must match the file name.
+2. Put any logo files in `public/shops/<shop-id>/`.
+3. Check it: `npm run shop:check -- <shop-id>` (use `-- --all` to check every shop).
+4. Create a new Neon database for the shop and run `npm run db:migrate` and `npm run db:set-login` against it.
+5. Create a new Vercel project from this repo with these environment variables: `SHOP_ID`, `DATABASE_URL`, `AUTH_SECRET`.
+6. Run locally as that shop: `SHOP_ID=<shop-id> npm run dev`.
+
+Each shop needs its own database and its own `AUTH_SECRET`, so one shop's customers never appear in another shop's app.
+
+### Colours
+
+The default palette is defined twice because Tailwind needs it in CSS and the PDF needs literal values in code:
+`src/app/globals.css` (the `@theme static` block) and `src/config/theme.ts`. `npm run shop:check` fails if they differ.
+A shop's `theme` overrides are applied on top as CSS variables, and the PDF invoice uses the same colours.
+
+## Commands
+
+```bash
+npm run dev          # dev server
+npm run build        # production build
+npm run lint         # ESLint (not run by build)
+npm run db:migrate   # apply database migrations
+npm run db:set-login # create or change an admin login
+npm run shop:check   # validate shop settings and colour tokens
+```
+
+See `architecture.md` and `styles.md` for more detail.
